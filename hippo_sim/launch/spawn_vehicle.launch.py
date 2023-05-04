@@ -77,6 +77,7 @@ def generate_launch_description():
              condition=IfCondition(LaunchConfiguration(
                  'fake_state_estimation'))),
         Node(package='hippo_sim',
+    """
              executable="fake_vision",
              name="vision",
              parameters=[
@@ -95,7 +96,6 @@ def generate_launch_description():
              ],
              condition=UnlessCondition(
                  LaunchConfiguration('fake_state_estimation'))),
-    ])
 
     launch_path = str(
         get_package_share_path('hippo_common') /
