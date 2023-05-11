@@ -94,8 +94,19 @@ ament_target_dependencies(${exec_name}
 )
 list(APPEND exec_targets ${exec_name})
 
+set(exec_name tf_map_body_publisher_node)
+add_executable(${exec_name} src/tf_map_body_publisher_node.cpp)
+ament_target_dependencies(${exec_name}
+        rclcpp
+        tf2
+        tf2_ros
+        nav_msgs
+        hippo_common
+        )
+list(APPEND exec_targets ${exec_name})
+
 install(
-  DIRECTORY launch models config
+  DIRECTORY launch models config rviz
   DESTINATION share/${PROJECT_NAME}
 )
 

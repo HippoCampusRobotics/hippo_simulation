@@ -1,7 +1,12 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="hippocampus">
-    <xacro:macro name="bluerov" params="base_link_name:=base_link">
-        <xacro:include filename="$(find hippo_sim)/models/bluerov/urdf/bluerov_params.xacro" />
+    <xacro:macro name="bluerov" params="base_link_name:=base_link use_uvms_param:=False">
+        <xacro:if value="${use_uvms_param == True}">
+            <xacro:include filename="$(find hippo_sim)/models/bluerov/urdf/bluerov_params_uvms.xacro" />
+        </xacro:if>
+        <xacro:unless value="${use_uvms_param == True}">
+            <xacro:include filename="$(find hippo_sim)/models/bluerov/urdf/bluerov_params.xacro" />
+        </xacro:unless>
         <xacro:include filename="$(find hippo_sim)/models/thruster/urdf/thruster_macro.xacro" />
         <xacro:include filename="$(find hippo_sim)/models/hippo3/urdf/mount_macro.xacro" />
         <xacro:include filename="$(find hippo_sim)/models/hippo3/urdf/clamp_macro.xacro" />
