@@ -24,7 +24,7 @@ class Bridge {
     node_topics = (rclcpp::node_interfaces::NodeTopics *)ros_node_
                       ->get_node_topics_interface()
                       .get();
-
+    CreateClockBridge();
     CreateGroundTruthBridge();
     CreateImuBridge();
     CreateThrusterBridge();
@@ -32,6 +32,25 @@ class Bridge {
     CreateLinearAccelerationBridge();
     CreateAngularVelocityBridge();
   }
+
+    void CreateClockBridge(){
+        bool use_sim_time;
+        bool default_value = true;
+        std::string parameterName = "use_sim_time";
+        if (!ros_node_->has_parameter(parameterName)) {
+            ros_node_->declare_parameter<bool>(parameterName, default_value);
+        }
+        if (!ros_node_->get_parameter<bool>(parameterName, use_sim_time)){
+            RCLCPP_WARN(ros_node_->get_logger(), ("Parameter " + parameterName + " not properly loaded, use default "
+                                                                                 "value " + std::to_string(default_value)).c_str());
+        }
+        if (!use_sim_time) {
+            return;
+        }
+        clock_pub_ = ros_node_->create_publisher<rosgraph_msgs::msg::Clock>("/clock", 1);
+        std::function<void(const ignition::msgs::Clock &)> f = std::bind(&Bridge::OnClock, this, _1);
+        gz_node_->Subscribe("/clock", f);
+    }
 
   void CreateAngularVelocityBridge() {
     std::string name;
@@ -119,6 +138,12 @@ class Bridge {
     thrust_sub_ = ros_node_->create_subscription<ActuatorControls>(
         "thruster_command", qos,
         std::bind(&Bridge::OnThrusterCommand, this, _1));
+  }
+
+  void OnClock(const ignition::msgs::Clock &msg){
+    rosgraph_msgs::msg::Clock ros_msg;
+    ros_gz_bridge::convert_gz_to_ros(msg, ros_msg);
+    clock_pub_->publish(ros_msg);
   }
 
   void OnAngularVelocity(const gz_msgs::Twist &_msg) {
@@ -218,6 +243,7 @@ class Bridge {
   EscRpms thrusters_rpm_msg_;
   ThrusterForces thruster_forces_msg_;
 
+  rclcpp::Publisher<rosgraph_msgs::msg::Clock>::SharedPtr clock_pub_;
   rclcpp::Publisher<Imu>::SharedPtr imu_pub_;
   rclcpp::Publisher<PoseStamped>::SharedPtr pose_pub_;
   rclcpp::Publisher<Odometry>::SharedPtr odometry_pub_;
