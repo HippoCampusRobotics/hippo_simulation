@@ -7,6 +7,7 @@ def generate_launch_description():
     package_path = get_package_share_path('hippo_sim')
     launch_path = str(package_path / 'launch/spawn_vehicle.launch.py'),
     model_path = str(package_path / 'models/bluerov/urdf/bluerov.xacro')
+    model_path_rviz = str(package_path / 'models/bluerov/urdf/bluerov_rviz.xacro')
 
     default_vehicle_name = "bluerov"
 
@@ -34,11 +35,11 @@ def generate_launch_description():
     state_publisher = launch_ros.actions.Node(package='robot_state_publisher',
                                               executable='robot_state_publisher',
                                               name='robot_state_publisher',
-                                              #namespace=vehicle_name,
+                                              namespace=vehicle_name,
                                               output='screen',
                                               parameters=[{'use_sim_time' : use_sim_time,
                                                            'robot_description': launch_ros.descriptions.ParameterValue(
-                                                               launch.substitutions.Command(['xacro ', model_path]), value_type=str)}]) # pi: 3.14159265359
+                               launch.substitutions.Command(['xacro ', model_path_rviz]), value_type=str)}]) # pi: 3.14159265359
 
     return launch.LaunchDescription([
             use_sim_time_launch_arg,
