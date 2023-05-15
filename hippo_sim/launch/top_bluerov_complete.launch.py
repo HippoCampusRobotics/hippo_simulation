@@ -51,14 +51,16 @@ def generate_launch_description():
     )
     )
 
+    tf_map_body_publisher = launch_ros.actions.Node(package='hippo_sim',
+                            namespace=vehicle_name,
+                            executable='tf_map_body_publisher_node',
+                            parameters=[{'use_sim_time': use_sim_time}]
+                            )
     launch_files.append(start_gazebo)
     return launch.LaunchDescription([
         *launch_files,
-        launch_ros.actions.Node(package='hippo_sim',
-                                namespace=vehicle_name,
-                                executable='tf_map_body_publisher_node',
-                                parameters=[{'use_sim_time': use_sim_time}]
-                                )
+        tf_map_body_publisher
+
     ])
 
 

@@ -9,7 +9,7 @@
     <xacro:property name="damping_linear" value="7 7 7" />
     <xacro:property name="damping_angular" value="0.3 0.3 0.3" />
     <xacro:property name="buoyancy_compensation" value="1.001" />
-    <xacro:property name="buoyancy_origin" value="0 0 -0.1" />
+    <xacro:property name="buoyancy_origin" value="0 0 0.005" />
     <xacro:property name="barometer_position" value="-0.15 0 -0.05" />
     <xacro:property name="barometer_noise" value="100.0" />
 

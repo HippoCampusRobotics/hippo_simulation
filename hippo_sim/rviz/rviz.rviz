@@ -8,8 +8,8 @@ Panels:
         - /Status1
         - /MarkerArray1
         - /RobotModel1
-        - /Axes1
-        - /Axes2
+        - /Base_Link1
+        - /Map link1
       Splitter Ratio: 0.5
     Tree Height: 746
   - Class: rviz_common/Selection
@@ -73,14 +73,19 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: ""
+        Value: /bluerov/robot_description
       Enabled: true
       Links:
         All Links Enabled: true
         Expand Joint Details: false
         Expand Link Details: false
         Expand Tree: false
-        Link Tree Style: ""
+        Link Tree Style: Links in Alphabetic Order
+        base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
       Mass Properties:
         Inertia: false
         Mass: false
@@ -92,16 +97,29 @@ Visualization Manager:
     - Class: rviz_default_plugins/Axes
       Enabled: true
       Length: 0.5
-      Name: Axes
+      Name: Base_Link
       Radius: 0.019999999552965164
       Reference Frame: base_link
       Value: true
     - Class: rviz_default_plugins/Axes
       Enabled: true
       Length: 0.5
-      Name: Axes
+      Name: Map link
       Radius: 0.019999999552965164
       Reference Frame: map
+      Value: true
+    - Class: rviz_default_plugins/Marker
+      Enabled: true
+      Name: Pool Mesh
+      Namespaces:
+        "": true
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /marker_topic
       Value: true
   Enabled: true
   Global Options:
@@ -149,7 +167,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 1.6239633560180664
+      Distance: 7.088641166687012
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -164,10 +182,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.19039854407310486
+      Pitch: 0.8753982782363892
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 0.5553982257843018
+      Yaw: 0.12039811164140701
     Saved: ~
 Window Geometry:
   Displays:
