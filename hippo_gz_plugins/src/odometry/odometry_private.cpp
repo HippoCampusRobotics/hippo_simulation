@@ -51,14 +51,16 @@ void PluginPrivate::Publish(
 
   auto pose = link_.WorldPose(_ecm);
   auto v_linear = link_.WorldLinearVelocity(_ecm);
+  auto v_linear_local = pose->Rot().Inverse().RotateVector(*v_linear);
   auto v_angular = link_.WorldAngularVelocity(_ecm);
   auto v_angular_local = pose->Rot().Inverse().RotateVector(*v_angular);
   auto header = msg_.mutable_header();
   auto twist = msg_.mutable_twist();
   header->mutable_stamp()->CopyFrom(stamp);
+
   ignition::msgs::Set(msg_.mutable_pose(), *pose);
   ignition::msgs::Set(twist->mutable_angular(), v_angular_local);
-  ignition::msgs::Set(twist->mutable_linear(), *v_linear);
+  ignition::msgs::Set(twist->mutable_linear(), v_linear_local);
   odometry_pub_.Publish(msg_);
   PublishAcceleration(_ecm, stamp);
 }
@@ -142,6 +144,10 @@ void PluginPrivate::InitHeader() {
   auto frame = header->add_data();
   frame->set_key("frame_id");
   frame->add_value("map");
+
+  auto child_frame = header->add_data();
+  child_frame->set_key("child_frame_id");
+  child_frame->add_value(model_name_ + "/base_link");
 }
 
 void PluginPrivate::InitComponents(

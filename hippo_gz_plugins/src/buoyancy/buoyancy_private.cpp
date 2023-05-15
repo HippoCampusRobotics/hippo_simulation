@@ -7,24 +7,49 @@
 namespace buoyancy {
 
 void PluginPrivate::ParseSdf(const std::shared_ptr<const sdf::Element> &_sdf) {
-  sdf_params_.link = _sdf->Get<std::string>("link", sdf_params_.link).first;
+    for (sdf::ElementPtr element= _sdf->GetFirstElement(); element != nullptr; element = element->GetNextElement()) {
+        if (element->GetName() != "buoyancy") {
+            continue;
+        }
+        ignmsg << "Found buoyancy element." << std::endl;
+        if (element->HasElement("link_name")) {
+            sdf_params_.link = element->Get<std::string>("link_name", sdf_params_.link).first;
+        } else {
+            ignerr << "Missing field 'link' in buoyancy plugin" << std::endl;
+        }
+        if (element->HasElement("force_added")){
+        sdf_params_.additional_buoyancy_force =
+                element->Get<double>("force_added",
+                                  sdf_params_.additional_buoyancy_force)
+                        .first;
+        } else {
+            ignerr << "Missing field 'force_added' in buoyancy plugin" << std::endl;
+        }
+        if (element->HasElement("compensation")) {
+            sdf_params_.relative_compensation =
+                    element->Get<double>("compensation",
+                                      sdf_params_.relative_compensation)
+                            .first;
+        } else {
+            ignerr << "Missing field 'compensation' in buoyancy plugin" << std::endl;
+        }
 
-  sdf_params_.additional_buoyancy_force =
-      _sdf->Get<double>("additional_buyoancy_force",
-                        sdf_params_.additional_buoyancy_force)
-          .first;
+        if (element->HasElement("height_scale_limit")) {
+            sdf_params_.height_scale_limit =
+                    element->Get<double>("height_scale_limit", sdf_params_.height_scale_limit)
+                            .first;
+        } else {
+            ignerr << "Missing field 'height_scale_limit' in buoyancy plugin" << std::endl;
+        }
 
-  sdf_params_.relative_compensation =
-      _sdf->Get<double>("relative_compensation",
-                        sdf_params_.relative_compensation)
-          .first;
-
-  sdf_params_.height_scale_limit =
-      _sdf->Get<double>("height_scale_limit", sdf_params_.height_scale_limit)
-          .first;
-
-  sdf_params_.origin =
-      _sdf->Get<ignition::math::Vector3d>("origin", sdf_params_.origin).first;
+        if (element->HasElement("origin")){
+        sdf_params_.origin =
+                element->Get<ignition::math::Vector3d>("origin", sdf_params_.origin).first;
+        } else {
+            ignerr << "Missing field 'origin' in buoyancy plugin" << std::endl;
+        }
+        break;
+    }
 }
 
 bool PluginPrivate::InitModel(ignition::gazebo::EntityComponentManager &_ecm,
@@ -70,7 +95,7 @@ void PluginPrivate::ApplyBuoyancy(
   }
   scale = ignition::math::clamp(scale, 0.0, 1.0);
   force *= scale;
-  ignition::math::Vector3d moment = force.Cross(buoyancy_offset);
+  ignition::math::Vector3d moment = buoyancy_offset.Cross(force);
   link_.AddWorldWrench(_ecm, force, moment);
 }
 
