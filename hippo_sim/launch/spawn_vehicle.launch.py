@@ -56,6 +56,20 @@ def generate_launch_description():
         launch_ros.actions.Node(package='hippo_sim',
                                 executable='bridge',
                                 output='screen'),
+        launch_ros.actions.Node(package='ros_gz_image',
+                                executable='image_bridge',
+                                arguments=[
+                                    '/uuv00/vertical_camera',
+                                ],
+                                output='screen'),
+        launch_ros.actions.Node(
+            package='ros_gz_bridge',
+            executable='parameter_bridge',
+            arguments=[
+                '/uuv00/camera_info@sensor_msgs/msg/CameraInfo@ignition.msgs.CameraInfo',
+            ],
+            output='screen',
+        ),
         launch_ros.actions.Node(package='hippo_sim',
                                 executable='fake_state_estimator',
                                 name='state_estimator',
@@ -69,12 +83,12 @@ def generate_launch_description():
             name="vision",
             condition=launch.conditions.IfCondition(
                 launch.substitutions.LaunchConfiguration('fake_vision'))),
-        launch_ros.actions.Node(
-            package='state_estimation',
-            executable='estimator',
-            name='state_estimator',
-            condition=launch.conditions.UnlessCondition(
-                launch.substitutions.LaunchConfiguration('fake_state_estimation'))),
+        # launch_ros.actions.Node(
+        #     package='state_estimation',
+        #     executable='estimator',
+        #     name='state_estimator',
+        #     condition=launch.conditions.UnlessCondition(
+        #         launch.substitutions.LaunchConfiguration('fake_state_estimation'))),
     ])
 
     return launch.LaunchDescription([

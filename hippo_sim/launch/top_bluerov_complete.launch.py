@@ -6,7 +6,7 @@ def generate_launch_description():
     package_path = get_package_share_path('hippo_sim')
     include_paths = [
         str(package_path / 'launch/start_gazebo.launch.py'),
-        str(package_path / 'launch/spawn_apriltag_floor.launch.py'),
+        # str(package_path / 'launch/spawn_apriltag_floor.launch.py'),
         str(package_path / 'launch/spawn_vehicle.launch.py'),
     ]
     launch_descriptions = [

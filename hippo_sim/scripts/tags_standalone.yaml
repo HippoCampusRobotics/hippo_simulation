@@ -1,0 +1,368 @@
+/**:
+  ros__parameters:
+    standalone_tags:
+      tag_0:
+        id: 0
+        size: 0.040
+      tag_1:
+        id: 1
+        size: 0.040
+      tag_10:
+        id: 10
+        size: 0.040
+      tag_11:
+        id: 11
+        size: 0.040
+      tag_12:
+        id: 12
+        size: 0.040
+      tag_13:
+        id: 13
+        size: 0.040
+      tag_14:
+        id: 14
+        size: 0.040
+      tag_15:
+        id: 15
+        size: 0.040
+      tag_16:
+        id: 16
+        size: 0.040
+      tag_17:
+        id: 17
+        size: 0.040
+      tag_18:
+        id: 18
+        size: 0.040
+      tag_19:
+        id: 19
+        size: 0.040
+      tag_2:
+        id: 2
+        size: 0.040
+      tag_20:
+        id: 20
+        size: 0.040
+      tag_21:
+        id: 21
+        size: 0.040
+      tag_22:
+        id: 22
+        size: 0.040
+      tag_23:
+        id: 23
+        size: 0.040
+      tag_24:
+        id: 24
+        size: 0.040
+      tag_25:
+        id: 25
+        size: 0.040
+      tag_26:
+        id: 26
+        size: 0.040
+      tag_27:
+        id: 27
+        size: 0.040
+      tag_28:
+        id: 28
+        size: 0.040
+      tag_29:
+        id: 29
+        size: 0.040
+      tag_3:
+        id: 3
+        size: 0.040
+      tag_30:
+        id: 30
+        size: 0.040
+      tag_31:
+        id: 31
+        size: 0.040
+      tag_32:
+        id: 32
+        size: 0.040
+      tag_33:
+        id: 33
+        size: 0.040
+      tag_34:
+        id: 34
+        size: 0.040
+      tag_35:
+        id: 35
+        size: 0.040
+      tag_36:
+        id: 36
+        size: 0.040
+      tag_37:
+        id: 37
+        size: 0.040
+      tag_38:
+        id: 38
+        size: 0.040
+      tag_39:
+        id: 39
+        size: 0.040
+      tag_4:
+        id: 4
+        size: 0.040
+      tag_40:
+        id: 40
+        size: 0.040
+      tag_41:
+        id: 41
+        size: 0.040
+      tag_42:
+        id: 42
+        size: 0.040
+      tag_43:
+        id: 43
+        size: 0.040
+      tag_44:
+        id: 44
+        size: 0.040
+      tag_45:
+        id: 45
+        size: 0.040
+      tag_46:
+        id: 46
+        size: 0.040
+      tag_47:
+        id: 47
+        size: 0.040
+      tag_48:
+        id: 48
+        size: 0.040
+      tag_49:
+        id: 49
+        size: 0.040
+      tag_5:
+        id: 5
+        size: 0.040
+      tag_50:
+        id: 50
+        size: 0.040
+      tag_51:
+        id: 51
+        size: 0.040
+      tag_52:
+        id: 52
+        size: 0.040
+      tag_53:
+        id: 53
+        size: 0.040
+      tag_54:
+        id: 54
+        size: 0.040
+      tag_55:
+        id: 55
+        size: 0.040
+      tag_56:
+        id: 56
+        size: 0.040
+      tag_57:
+        id: 57
+        size: 0.040
+      tag_58:
+        id: 58
+        size: 0.040
+      tag_59:
+        id: 59
+        size: 0.040
+      tag_6:
+        id: 6
+        size: 0.040
+      tag_60:
+        id: 60
+        size: 0.040
+      tag_61:
+        id: 61
+        size: 0.040
+      tag_62:
+        id: 62
+        size: 0.040
+      tag_63:
+        id: 63
+        size: 0.040
+      tag_64:
+        id: 64
+        size: 0.040
+      tag_65:
+        id: 65
+        size: 0.040
+      tag_66:
+        id: 66
+        size: 0.040
+      tag_67:
+        id: 67
+        size: 0.040
+      tag_68:
+        id: 68
+        size: 0.040
+      tag_69:
+        id: 69
+        size: 0.040
+      tag_7:
+        id: 7
+        size: 0.040
+      tag_70:
+        id: 70
+        size: 0.040
+      tag_71:
+        id: 71
+        size: 0.040
+      tag_72:
+        id: 72
+        size: 0.040
+      tag_73:
+        id: 73
+        size: 0.040
+      tag_74:
+        id: 74
+        size: 0.040
+      tag_75:
+        id: 75
+        size: 0.040
+      tag_76:
+        id: 76
+        size: 0.040
+      tag_77:
+        id: 77
+        size: 0.040
+      tag_78:
+        id: 78
+        size: 0.040
+      tag_79:
+        id: 79
+        size: 0.040
+      tag_8:
+        id: 8
+        size: 0.040
+      tag_80:
+        id: 80
+        size: 0.040
+      tag_81:
+        id: 81
+        size: 0.040
+      tag_82:
+        id: 82
+        size: 0.040
+      tag_83:
+        id: 83
+        size: 0.040
+      tag_84:
+        id: 84
+        size: 0.040
+      tag_85:
+        id: 85
+        size: 0.040
+      tag_86:
+        id: 86
+        size: 0.040
+      tag_87:
+        id: 87
+        size: 0.040
+      tag_88:
+        id: 88
+        size: 0.040
+      tag_89:
+        id: 89
+        size: 0.040
+      tag_9:
+        id: 9
+        size: 0.040
+      tag_90:
+        id: 90
+        size: 0.040
+      tag_names:
+      - tag_0
+      - tag_1
+      - tag_2
+      - tag_3
+      - tag_4
+      - tag_5
+      - tag_6
+      - tag_7
+      - tag_8
+      - tag_9
+      - tag_10
+      - tag_11
+      - tag_12
+      - tag_13
+      - tag_14
+      - tag_15
+      - tag_16
+      - tag_17
+      - tag_18
+      - tag_19
+      - tag_20
+      - tag_21
+      - tag_22
+      - tag_23
+      - tag_24
+      - tag_25
+      - tag_26
+      - tag_27
+      - tag_28
+      - tag_29
+      - tag_30
+      - tag_31
+      - tag_32
+      - tag_33
+      - tag_34
+      - tag_35
+      - tag_36
+      - tag_37
+      - tag_38
+      - tag_39
+      - tag_40
+      - tag_41
+      - tag_42
+      - tag_43
+      - tag_44
+      - tag_45
+      - tag_46
+      - tag_47
+      - tag_48
+      - tag_49
+      - tag_50
+      - tag_51
+      - tag_52
+      - tag_53
+      - tag_54
+      - tag_55
+      - tag_56
+      - tag_57
+      - tag_58
+      - tag_59
+      - tag_60
+      - tag_61
+      - tag_62
+      - tag_63
+      - tag_64
+      - tag_65
+      - tag_66
+      - tag_67
+      - tag_68
+      - tag_69
+      - tag_70
+      - tag_71
+      - tag_72
+      - tag_73
+      - tag_74
+      - tag_75
+      - tag_76
+      - tag_77
+      - tag_78
+      - tag_79
+      - tag_80
+      - tag_81
+      - tag_82
+      - tag_83
+      - tag_84
+      - tag_85
+      - tag_86
+      - tag_87
+      - tag_88
+      - tag_89
+      - tag_90
