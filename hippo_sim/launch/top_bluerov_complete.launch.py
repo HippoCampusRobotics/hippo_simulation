@@ -22,7 +22,7 @@ def generate_launch_description():
             str(package_path / "launch/start_gazebo.launch.py")
         )
     )
-    paths = [spawner_path, ctrl_path, traj_gen_path, visualization_path]
+    paths = [spawner_path, traj_gen_path, visualization_path]
     launch_files = []
 
     for path in paths:
@@ -34,6 +34,15 @@ def generate_launch_description():
                                   vehicle_name=vehicle_name).items()
             )
         )
+    launch_files.append(launch.actions.IncludeLaunchDescription(
+        launch.launch_description_sources.PythonLaunchDescriptionSource(
+            ctrl_path
+        ),
+        launch_arguments=dict(use_sim_time=str(use_sim_time),
+                              controller_type=str(2)).items()
+        )
+    )
+
     launch_files.append(launch.actions.IncludeLaunchDescription(
             launch.launch_description_sources.PythonLaunchDescriptionSource(
                 rviz_path
