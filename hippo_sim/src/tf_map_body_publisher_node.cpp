@@ -20,7 +20,7 @@ public:
                 std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
         subscription_ = this->create_subscription<nav_msgs::msg::Odometry>(
-                "odometry", 10,
+                "odometry",  rclcpp::SystemDefaultsQoS(),
                 std::bind(&TFMapBodyPublisher::odometryCallback, this, std::placeholders::_1));
         got_odometry_information_ = false;
         initial_tf_thread = std::thread(&TFMapBodyPublisher::publishInitialTF, this);
