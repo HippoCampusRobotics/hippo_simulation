@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="hippocampus">
-    <xacro:macro name="bluerov" params="base_link_name:=base_link use_uvms_param:=False rviz_model:=False">
+    <xacro:macro name="bluerov" params="base_link_name:=base_link use_uvms_param:=False rviz_model:=False simulate_kinematics:=False">
         <xacro:if value="${use_uvms_param == True}">
             <xacro:include filename="$(find hippo_sim)/models/bluerov/urdf/bluerov_params_uvms.xacro" />
         </xacro:if>
@@ -44,26 +44,36 @@
             <xacro:thruster parent="${base_link_name}" model="t200" suffix="rear_port_vertical" xyz="-0.12 0.22 0.06" rpy="0 ${radians(-90)} 0" turning_direction="cw" propeller_direction="ccw" color="grey" number="7" />
 
         </xacro:unless>
-        <gazebo>
-            <plugin filename="buoyancy" name="hippo_gz_plugins::buoyancy">
-                <buoyancy>
-                    <link_name>${base_link_name}</link_name>
-                    <origin>${buoyancy_origin}</origin>
-                    <force_added>0</force_added>
-                    <compensation>${buoyancy_compensation}</compensation> <!-- 1.01 -->
-                    <height_scale_limit>0.1</height_scale_limit>
-                </buoyancy>
-            </plugin>
 
-            <plugin filename="hydrodynamics" name="hippo_gz_plugins::hydrodynamics">
-                <hydrodynamics>
-                    <link>${base_link_name}</link>
-                    <added_mass_linear>${added_mass_linear}</added_mass_linear>
-                    <added_mass_angular>${added_mass_angular}</added_mass_angular>
-                    <damping_linear>${damping_linear}</damping_linear>
-                    <damping_angular>${damping_angular}</damping_angular>
-                </hydrodynamics>
-            </plugin>
+        <gazebo>
+
+            <xacro:if value="${simulate_kinematics == True}">
+                <plugin filename="kinematic_control" name="hippo_gz_plugins::kinematic_control">
+                    <link_name>${base_link_name}</link_name>
+                </plugin>
+
+            </xacro:if>
+            <xacro:unless value="${simulate_kinematics == True}">
+                <plugin filename="buoyancy" name="hippo_gz_plugins::buoyancy">
+                    <buoyancy>
+                        <link_name>${base_link_name}</link_name>
+                        <origin>${buoyancy_origin}</origin>
+                        <force_added>0</force_added>
+                        <compensation>${buoyancy_compensation}</compensation> <!-- 1.01 -->
+                        <height_scale_limit>0.1</height_scale_limit>
+                    </buoyancy>
+                </plugin>
+
+                <plugin filename="hydrodynamics" name="hippo_gz_plugins::hydrodynamics">
+                    <hydrodynamics>
+                        <link>${base_link_name}</link>
+                        <added_mass_linear>${added_mass_linear}</added_mass_linear>
+                        <added_mass_angular>${added_mass_angular}</added_mass_angular>
+                        <damping_linear>${damping_linear}</damping_linear>
+                        <damping_angular>${damping_angular}</damping_angular>
+                    </hydrodynamics>
+                </plugin>
+            </xacro:unless>
 
             <plugin filename="pose" name="hippo_gz_plugins::pose">
                 <link>${base_link_name}</link>

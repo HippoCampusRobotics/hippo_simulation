@@ -161,7 +161,10 @@ void PluginPrivate::InitComponents(
                          ignition::gazebo::components::WorldPose());
   }
 
-  // create component for angular velocity
+    link_.EnableVelocityChecks(_ecm, true);
+
+
+    // create component for angular velocity
   if (!_ecm.Component<ignition::gazebo::components::AngularVelocity>(
           link_.Entity())) {
     _ecm.CreateComponent(link_.Entity(),
