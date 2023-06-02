@@ -39,9 +39,21 @@ namespace kinematic_control{
         /// \brief Commanded linear velocity
     public: ignition::math::Vector3d linearVelCmd;
 
+    public: ignition::math::Vector3d lastLinearVelCmd;
+
+    public: ignition::math::Vector3d offsetsLinearVelCmd;
+
         /// \brief Commanded angular velocity
     public: ignition::math::Vector3d angularVelCmd;
 
+    public: ignition::math::Vector3d lastAngularVelCmd;
+
+    public: ignition::math::Vector3d offsetsAngularVelCmd;
+
+    public: bool first_update;
+
+        /// \brief Smoothing factor for calculating offsets based on difference between current state and last command
+    public: double smoothing_fac;
         /// \brief mutex to protect linearVelCmd
     public: std::mutex linearVelCmdMutex;
 

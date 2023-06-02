@@ -103,6 +103,11 @@ void KinematicControl::Configure(const ignition::gazebo::Entity &_entity,
            << "]" << std::endl;
     */
 
+    this->dataPtr->offsetsLinearVelCmd = ignition::math::Vector3d(0.0, 0.0, 0.0);
+    this->dataPtr->offsetsAngularVelCmd = ignition::math::Vector3d(0.0, 0.0, 0.0);
+    this->dataPtr->first_update = false;
+    this->dataPtr->smoothing_fac = 0.1;
+
  }
 
 //////////////////////////////////////////////////
@@ -128,6 +133,28 @@ void KinematicControl::PreUpdate(const ignition::gazebo::UpdateInfo &_info,
     // Nothing left to do if paused.
     if (_info.paused)
         return;
+
+    if (this->dataPtr->first_update){
+        auto linear_vel_comp = _ecm.Component<ignition::gazebo::components::LinearVelocity>(this->dataPtr->linkEntity);
+        if (linear_vel_comp == nullptr) {
+            _ecm.CreateComponent(this->dataPtr->linkEntity, ignition::gazebo::components::LinearVelocity());
+        }
+
+        auto angular_vel_comp = _ecm.Component<ignition::gazebo::components::AngularVelocity>(this->dataPtr->linkEntity);
+        if (angular_vel_comp == nullptr){
+            _ecm.CreateComponent(this->dataPtr->linkEntity, ignition::gazebo::components::AngularVelocity());
+        }
+        auto pose = this->dataPtr->link.WorldPose(_ecm);
+
+        auto world_linear_velocity = this->dataPtr->link.WorldLinearVelocity(_ecm);
+        auto world_angular_velocity = this->dataPtr->link.WorldAngularVelocity(_ecm);
+        ignition::math::Vector3d linear_velocity = pose->Rot().Inverse().RotateVector(world_linear_velocity.value());
+        ignition::math::Vector3d angular_velocity = pose->Rot().Inverse().RotateVector(world_angular_velocity.value());
+        this->dataPtr->offsetsLinearVelCmd = this->dataPtr->smoothing_fac * (this->dataPtr->lastLinearVelCmd - linear_velocity) +
+                (1 - this->dataPtr->smoothing_fac) * this->dataPtr->offsetsLinearVelCmd;
+        this->dataPtr->offsetsAngularVelCmd = this->dataPtr->smoothing_fac * (this->dataPtr->lastAngularVelCmd - angular_velocity) +
+                                             (1 - this->dataPtr->smoothing_fac) * this->dataPtr->offsetsAngularVelCmd;
+    }
 
 
     /*
@@ -207,31 +234,13 @@ void KinematicControl::PreUpdate(const ignition::gazebo::UpdateInfo &_info,
         std::lock_guard<std::mutex> lock(this->dataPtr->angularVelCmdMutex);
         this->dataPtr->link.SetAngularVelocity(_ecm, this->dataPtr->angularVelCmd);
     }
-    /*
 
-    auto velcomp = _ecm.Component<ignition::gazebo::components::LinearVelocity>(this->dataPtr->linkEntity);
-    if (velcomp == nullptr) {
-        _ecm.CreateComponent(this->dataPtr->linkEntity, ignition::gazebo::components::LinearVelocity());
+    this->dataPtr->lastLinearVelCmd = this->dataPtr->linearVelCmd;
+    this->dataPtr->lastAngularVelCmd = this->dataPtr->angularVelCmd;
+
+    if (!this->dataPtr->first_update){
+        this->dataPtr->first_update = true;
     }
-
-    auto pose = this->dataPtr->link.WorldPose(_ecm);
-
-    auto world_linear_velocity = this->dataPtr->link.WorldLinearVelocity(_ecm);
-    auto world_angular_velocity = this->dataPtr->link.WorldAngularVelocity(_ecm);
-    ignition::math::Vector3d linear_velocity = pose->Rot().Inverse().RotateVector(world_linear_velocity.value());
-    ignition::math::Vector3d angular_velocity = pose->Rot().Inverse().RotateVector(world_angular_velocity.value());
-
-    ignwarn << "Linear velocity command: " << this->dataPtr->linearVelCmd.X() << ", " <<
-                this->dataPtr->linearVelCmd.Y() << ", "<< this->dataPtr->linearVelCmd.Z() << std::endl;
-    ignwarn << "Linear velocity: " << linear_velocity.X() << ", " <<
-                                   linear_velocity.Y() << ", "<< linear_velocity.Z() << std::endl;
-
-    ignwarn << "Angular velocity command: " << this->dataPtr->angularVelCmd.X() << ", " <<
-                this->dataPtr->angularVelCmd.Y() << ", "<< this->dataPtr->angularVelCmd.Z() << std::endl;
-    ignwarn << "Angular velocity: " << angular_velocity.X() << ", " <<
-                                   angular_velocity.Y() << ", "<< angular_velocity.Z() << std::endl;
-
-    */
 
 }
 
@@ -252,9 +261,11 @@ void KinematicControlPrivate::OnVelCmd(const ignition::msgs::Twist &_msg){
     {
         std::lock_guard<std::mutex> lock(this->linearVelCmdMutex);
         this->linearVelCmd = ignition::msgs::Convert(_msg.linear());
+        this->linearVelCmd += this->offsetsLinearVelCmd;
     }
     {
         std::lock_guard<std::mutex> lock(this->angularVelCmdMutex);
         this->angularVelCmd = ignition::msgs::Convert(_msg.angular());
+        this->angularVelCmd += this->offsetsAngularVelCmd;
     }
 }

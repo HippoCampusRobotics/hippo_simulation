@@ -51,7 +51,11 @@
                 <plugin filename="kinematic_control" name="hippo_gz_plugins::kinematic_control">
                     <link_name>${base_link_name}</link_name>
                 </plugin>
-
+                <!--
+                <plugin name="ignition::gazebo::systems::VelocityControl" filename="ignition-gazebo-velocity-control-system">
+                    <link_name>${base_link_name}</link_name>
+                </plugin>
+                -->
             </xacro:if>
             <xacro:unless value="${simulate_kinematics == True}">
                 <plugin filename="buoyancy" name="hippo_gz_plugins::buoyancy">
