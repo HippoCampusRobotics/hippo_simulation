@@ -50,7 +50,7 @@
                 <always_on>1</always_on>
                 <update_rate>30</update_rate>
                 <visualize>true</visualize>
-                <topic>$(arg vehicle_name)/${prefix}/image</topic>
+                <topic>$(arg vehicle_name)/${prefix}/image_rect</topic>
                 <!-- needs to be changed to gz_frame_id in the future -->
                 <ignition_frame_id>$(arg vehicle_name)::${prefix}</ignition_frame_id>
             </sensor>

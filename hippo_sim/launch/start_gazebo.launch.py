@@ -8,6 +8,9 @@ def generate_launch_description():
     world = package_path / 'models' / 'world' / 'empty.sdf'
     pool_path = package_path / 'models/pool/urdf/pool.xacro'
 
+    use_sim_time = launch.substitutions.LaunchConfiguration('use_sim_time',
+                                                            default=True)
+
     pool_description = launch.substitutions.LaunchConfiguration(
         'pool_description',
         default=launch.substitutions.Command([
@@ -18,7 +21,7 @@ def generate_launch_description():
     pool_params = {'pool_description': pool_description}
 
     gazebo = launch.actions.ExecuteProcess(
-        cmd=['ign', 'gazebo', '-v 3', str(world)], output='screen')
+        cmd=['ign', 'gazebo', '-v 1', str(world)], output='screen')
 
     return launch.LaunchDescription([
         gazebo,
@@ -36,6 +39,20 @@ def generate_launch_description():
                                     '-1.5',
                                 ],
                                 output='screen'),
+        # bridge the clock topic
+        launch_ros.actions.Node(
+            name='clock_bridge',
+            package='ros_gz_bridge',
+            executable='parameter_bridge',
+            arguments=[
+                '/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock',
+            ],
+            parameters=[
+                {
+                    'use_sim_time': use_sim_time,
+                },
+            ],
+            output='screen'),
         launch.actions.
         RegisterEventHandler(event_handler=launch.event_handlers.OnProcessExit(
             target_action=gazebo,
