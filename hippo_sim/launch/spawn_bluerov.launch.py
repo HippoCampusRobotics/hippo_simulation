@@ -21,7 +21,7 @@ def generate_launch_description():
     )
     use_sim_time_launch_arg = launch.actions.DeclareLaunchArgument(
         name='use_sim_time_launch_arg',
-        default_value = default_vehicle_name,
+        default_value = str(True),
         description = 'Vehicle name used as namespace'
     )
 
@@ -39,7 +39,7 @@ def generate_launch_description():
                                               output='screen',
                                               parameters=[{'use_sim_time' : use_sim_time,
                                                            'robot_description': launch_ros.descriptions.ParameterValue(
-                               launch.substitutions.Command(['xacro ', model_path_rviz]), value_type=str)}]) # pi: 3.14159265359
+                               launch.substitutions.Command(['xacro ', model_path_rviz, " vehicle_name:=", vehicle_name]), value_type=str)}]) # pi: 3.14159265359
 
     return launch.LaunchDescription([
             use_sim_time_launch_arg,

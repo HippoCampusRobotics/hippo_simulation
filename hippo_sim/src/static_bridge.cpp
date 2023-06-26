@@ -24,7 +24,7 @@ class Bridge {
     node_topics = (rclcpp::node_interfaces::NodeTopics *)ros_node_
                       ->get_node_topics_interface()
                       .get();
-    CreateClockBridge();
+    //CreateClockBridge();
     CreateGroundTruthBridge();
     CreateImuBridge();
     CreateThrusterBridge();

@@ -68,7 +68,7 @@ def generate_launch_description():
     launch_files.append(start_gazebo)
     return launch.LaunchDescription([
         *launch_files,
-        tf_map_body_publisher
+        #tf_map_body_publisher
 
     ])
 

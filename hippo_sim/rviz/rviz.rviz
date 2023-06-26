@@ -7,6 +7,7 @@ Panels:
         - /Global Options1
         - /Status1
         - /MarkerArray1
+        - /MarkerArray1/Status1
         - /RobotModel1
         - /Base_Link1
         - /Map link1
@@ -81,7 +82,7 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        base_link:
+        bluerov/base_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -99,7 +100,7 @@ Visualization Manager:
       Length: 0.5
       Name: Base_Link
       Radius: 0.019999999552965164
-      Reference Frame: base_link
+      Reference Frame: bluerov/base_link
       Value: true
     - Class: rviz_default_plugins/Axes
       Enabled: true
