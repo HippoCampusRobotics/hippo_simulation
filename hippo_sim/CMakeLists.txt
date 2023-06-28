@@ -95,7 +95,7 @@ ament_target_dependencies(${exec_name}
 list(APPEND exec_targets ${exec_name})
 
 install(
-  DIRECTORY launch models
+  DIRECTORY launch models config
   DESTINATION share/${PROJECT_NAME}
 )
 
