@@ -189,7 +189,6 @@ class Bridge {
   void OnOdometry(const gz_msgs::Odometry &_msg) {
     Odometry ros_msg;
     ros_gz_bridge::convert_gz_to_ros(_msg, ros_msg);
-    ros_msg.header.stamp = ros_node_->now();
     odometry_pub_->publish(ros_msg);
   }
 
