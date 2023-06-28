@@ -29,9 +29,10 @@ def generate_even_grid(size: Tuple[int, int], offset: Tuple[float, float,
                 'x': x,
                 'y': y,
                 'z': z,
-                'R': 0.0,
-                'P': 0.0,
-                'Y': 0.0,
+                'qw': 1.0,
+                'qx': 0.0,
+                'qy': 0.0,
+                'qz': 0.0,
             })
             tag_id += 1
     return data
@@ -57,10 +58,10 @@ def generate_tag_bundle(tag_poses, name: str):
             x=tag['x'],
             y=tag['y'],
             z=tag['z'],
-            qw=1.0,
-            qx=0.0,
-            qy=0.0,
-            qz=0.0,
+            qw=tag['qw'],
+            qx=tag['qx'],
+            qy=tag['qy'],
+            qz=tag['qz'],
         )
     data = {f'{name}': dict(layout=layout)}
     return data
@@ -73,8 +74,9 @@ def convert_to_rosparam(data):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--tag-size',
-                        default=0.05,
-                        help='Tag size in meters including the border.')
+                        default=0.075,
+                        type=float,
+                        help='Tag size in meters of the inner 8x8 pixels area.')
     parser.add_argument('--grid-size',
                         nargs=2,
                         default=[13, 7],
