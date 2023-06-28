@@ -9,5 +9,5 @@
     <xacro:property name="added_mass_angular" value="0.00451 0.0163 0.0163"/>
     <xacro:property name="damping_linear" value="5.39 17.36 17.36"/>
     <xacro:property name="damping_angular" value="0.00174 0.007 0.007"/>
-    <xacro:property name="camera_position" value="-0.1, 0.0 -0.03" />
+    <xacro:property name="camera_position" value="0.15, 0.0 -0.03" />
 </robot>
