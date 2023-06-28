@@ -10,6 +10,7 @@ import subprocess
 import shlex
 import hashlib
 import glob
+import math
 
 
 def create_base_model():
@@ -57,10 +58,10 @@ def generate_hashes(paths):
 def generate_urdfs(xacro_path, tag_poses, output_dir):
     paths = []
     for tag_data in tag_poses['tag_poses']:
-        name = f'apriltag_{tag_data["id"]}'
+        name = f'apriltag_{tag_data["id"]:03d}'
         mappings = {
-            'size_x': str(tag_data['size']),
-            'size_y': str(tag_data['size']),
+            'size_x': str(tag_data['size'] * 10.0 / 8.0),
+            'size_y': str(tag_data['size'] * 10.0 / 8.0),
             'tag_id': str(tag_data['id'])
         }
         doc = xacro.process_file(xacro_path, mappings=mappings)
@@ -118,7 +119,7 @@ def quat_to_rpy(qw, qx, qy, qz):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--tag-poses', required=True)
+    parser.add_argument('--tag-poses-file', required=True)
     parser.add_argument('--input-file', required=False)
     parser.add_argument('--force', action='store_true')
     args = parser.parse_args()
@@ -132,8 +133,12 @@ def main():
     else:
         package_path = get_package_share_path('hippo_sim')
         xacro_path = package_path / 'models/apriltag/urdf/apriltag.xacro'
-
-    tag_poses = yaml.safe_load(args.tag_poses)
+    try:
+        with open(args.tag_poses_file, 'r') as f:
+            tag_poses = yaml.safe_load(f)
+    except FileNotFoundError as e:
+        print(f'Could not open file {args.tag_poses_file}: {e}')
+        exit(1)
 
     if not os.path.exists(cache_dir):
         os.mkdir(cache_dir)
