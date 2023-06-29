@@ -12,8 +12,9 @@
 
     <!-- for reversed direction:  0.01268 -0.05067 0.0 -->
     <!-- Throttle = f(revs/s) -->
-    <xacro:property name="velocity_quadratic_coeff" value="1.2679e-4"/>
-    <xacro:property name="velocity_linear_coeff" value="1.1105e-2"/>
+    <xacro:property name="velocity_quadratic_coeff" value="0.00914"/>
+    <xacro:property name="velocity_linear_coeff" value="-0.2228"/>
+
     <xacro:property name="velocity_constant_coeff" value="0.0"/>
 
     <xacro:property name="rpm_scaler" value="10" />
