@@ -13,15 +13,15 @@
     <xacro:property name="buoyancy_origin_AUV" value="${[0, 0, 0.005]}" />
     <xacro:property name="buoyancy_compensation_added" value="0.0713" /> <!-- must be the same as for controller! -->
     <xacro:property name="buoyancy_origin_added" value="${[0, 0, 0.05]}" />
-    <!--
+
     <xacro:property name="buoyancy_compensation" value="${buoyancy_compensation_AUV + buoyancy_compensation_added}" />
     <xacro:property name="buoyancy_origin" value="${(buoyancy_origin_AUV[0] * buoyancy_compensation_AUV + buoyancy_origin_added[0] * buoyancy_compensation_added) / (buoyancy_compensation_AUV + buoyancy_compensation_added)}
             ${(buoyancy_origin_AUV[1] * buoyancy_compensation_AUV + buoyancy_origin_added[1] * buoyancy_compensation_added) / (buoyancy_compensation_AUV + buoyancy_compensation_added)}
             ${(buoyancy_origin_AUV[2] * buoyancy_compensation_AUV + buoyancy_origin_added[2] * buoyancy_compensation_added) / (buoyancy_compensation_AUV + buoyancy_compensation_added)}" />
-    -->
+    <!--
     <xacro:property name="buoyancy_compensation" value="${buoyancy_compensation_AUV}"/>
     <xacro:property name="buoyancy_origin" value="${buoyancy_origin_AUV[0]} ${buoyancy_origin_AUV[1]} ${buoyancy_origin_AUV[2]}"/>
-
+    -->
 
     <xacro:property name="barometer_position" value="-0.15 0 -0.05" />
     <xacro:property name="barometer_noise" value="100.0" />

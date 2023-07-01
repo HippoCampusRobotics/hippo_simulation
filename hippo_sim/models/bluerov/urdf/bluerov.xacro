@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="hippocampus">
     <xacro:arg name="base_link_name" default="base_link"/>
+    <xacro:arg name="vehicle_name" default="bluerov"/>
     <xacro:include filename="$(find hippo_sim)/models/bluerov/urdf/bluerov_macro.xacro"/>
     <xacro:bluerov base_link_name="$(arg base_link_name)" link_ns="$(arg vehicle_name)/">
 

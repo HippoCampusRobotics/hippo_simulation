@@ -226,6 +226,7 @@ void KinematicControl::PreUpdate(const ignition::gazebo::UpdateInfo &_info,
     }
      */
 
+    // Set linear and angular velocity in local link (!) frame
     {
         std::lock_guard<std::mutex> lock(this->dataPtr->linearVelCmdMutex);
         this->dataPtr->link.SetLinearVelocity(_ecm, this->dataPtr->linearVelCmd);
