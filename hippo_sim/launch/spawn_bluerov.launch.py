@@ -32,17 +32,8 @@ def generate_launch_description():
             vehicle_name=vehicle_name,
             model_path=model_path,
             fake_state_estimation=str(True)).items())
-    state_publisher = launch_ros.actions.Node(package='robot_state_publisher',
-                                              executable='robot_state_publisher',
-                                              name='robot_state_publisher',
-                                              namespace=vehicle_name,
-                                              output='screen',
-                                              parameters=[{'use_sim_time' : use_sim_time,
-                                                           'robot_description': launch_ros.descriptions.ParameterValue(
-                               launch.substitutions.Command(['xacro ', model_path_rviz, " vehicle_name:=", vehicle_name]), value_type=str)}]) # pi: 3.14159265359
 
     return launch.LaunchDescription([
             use_sim_time_launch_arg,
             vehicle_name_launch_arg,
-            vehicle_spawner,
-        state_publisher])
+            vehicle_spawner])
