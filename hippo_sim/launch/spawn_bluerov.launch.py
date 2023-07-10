@@ -1,13 +1,11 @@
 from ament_index_python.packages import get_package_share_path
 import launch
-import launch_ros
 
 
 def generate_launch_description():
     package_path = get_package_share_path('hippo_sim')
     launch_path = str(package_path / 'launch/spawn_vehicle.launch.py'),
     model_path = str(package_path / 'models/bluerov/urdf/bluerov.xacro')
-    model_path_rviz = str(package_path / 'models/bluerov/urdf/bluerov_rviz.xacro')
 
     default_vehicle_name = "bluerov"
 
@@ -16,13 +14,13 @@ def generate_launch_description():
 
     vehicle_name_launch_arg = launch.actions.DeclareLaunchArgument(
         name='vehicle_name',
-        default_value = default_vehicle_name,
-        description = 'Vehicle name used as namespace'
+        default_value=default_vehicle_name,
+        description='Vehicle name used as namespace'
     )
     use_sim_time_launch_arg = launch.actions.DeclareLaunchArgument(
         name='use_sim_time_launch_arg',
-        default_value = str(True),
-        description = 'Vehicle name used as namespace'
+        default_value=str(True),
+        description='Vehicle name used as namespace'
     )
 
     vehicle_spawner = launch.actions.IncludeLaunchDescription(

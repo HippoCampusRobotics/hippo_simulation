@@ -70,38 +70,6 @@ void KinematicControl::Configure(const ignition::gazebo::Entity &_entity,
     ignmsg << "KinematicControl subscribing to Twist messages on [" << topic
            << "]" << std::endl;
 
-    /*
-    topic = ignition::transport::TopicUtils::AsValidTopic("/" +
-                                                          this->dataPtr->model.Name(_ecm) + "/linear_vel_cmds");
-    if (topic.empty())
-    {
-        ignerr << "Failed to create topic_linear for link [" << linkName
-               << "]" << std::endl;
-        return;
-    }
-
-    this->dataPtr->node.Subscribe(topic, &KinematicControlPrivate::OnLinearVelCmd,
-                                      this->dataPtr.get());
-
-    ignmsg << "KinematicControl subscribing to Vector3d messages on [" << topic
-           << "]" << std::endl;
-
-    topic = ignition::transport::TopicUtils::AsValidTopic("/" +
-                                                          this->dataPtr->model.Name(_ecm) + "/angular_vel_cmds");
-    if (topic.empty())
-    {
-        ignerr << "Failed to create topic_linear for link [" << linkName
-               << "]" << std::endl;
-        return;
-    }
-
-    this->dataPtr->node.Subscribe(topic, &KinematicControlPrivate::OnAngularVelCmd,
-                                      this->dataPtr.get());
-
-
-    ignmsg << "KinematicControl subscribing to Vector3d messages on [" << topic
-           << "]" << std::endl;
-    */
 
     this->dataPtr->offsetsLinearVelCmd = ignition::math::Vector3d(0.0, 0.0, 0.0);
     this->dataPtr->offsetsAngularVelCmd = ignition::math::Vector3d(0.0, 0.0, 0.0);

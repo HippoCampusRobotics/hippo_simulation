@@ -15,17 +15,6 @@
 
 namespace kinematic_control{
     class KinematicControlPrivate{
-    /*
-          /// \brief Callback for linear velocity subscription
-        /// \param[in] _msg Velocity message
-    public: void OnLinearVelCmd(const ignition::msgs::Vector3d &_msg);
-
-
-        /// \brief Callback for angular velocity subscription
-        /// \param[in] _msg Velocity message
-    public: void OnAngularVelCmd(const ignition::msgs::Vector3d &_msg);
-    */
-
         /// \brief Callback for twist msg subscription
     public: void OnVelCmd(const ignition::msgs::Twist &_msg);
 
