@@ -125,75 +125,6 @@ void KinematicControl::PreUpdate(const ignition::gazebo::UpdateInfo &_info,
     }
 
 
-    /*
-    // update linear velocity of model
-    auto modelLinearVel =
-            _ecm.Component<ignition::gazebo::components::LinearVelocityCmd>(
-                    this->dataPtr->model.Entity());
-
-    if (modelLinearVel == nullptr)
-    {
-        _ecm.CreateComponent(
-                this->dataPtr->model.Entity(),
-                ignition::gazebo::components::LinearVelocityCmd({this->dataPtr->linearVelCmd}));
-    }
-    else
-    {
-        *modelLinearVel =
-                ignition::gazebo::components::LinearVelocityCmd({this->dataPtr->linearVelCmd});
-    }
-
-    auto modelAngularVel =
-            _ecm.Component<ignition::gazebo::components::AngularVelocityCmd>(
-                    this->dataPtr->model.Entity());
-
-    if (modelAngularVel == nullptr)
-    {
-        _ecm.CreateComponent(
-                this->dataPtr->model.Entity(),
-                ignition::gazebo::components::AngularVelocityCmd({this->dataPtr->angularVelCmd}));
-    }
-    else
-    {
-        *modelAngularVel =
-                ignition::gazebo::components::AngularVelocityCmd({this->dataPtr->angularVelCmd});
-    }
-
-     */
-
-
-
-
-    /*
-    auto linearVelComp = _ecm.Component<ignition::gazebo::components::LinearVelocityCmd>(this->dataPtr->linkEntity);
-
-    {
-        std::lock_guard<std::mutex> lock(this->dataPtr->linearVelCmdMutex);
-        if (linearVelComp == nullptr) {
-            _ecm.CreateComponent(this->dataPtr->linkEntity,
-                                 ignition::gazebo::components::LinearVelocityCmd({this->dataPtr->linearVelCmd}));
-        } else {
-            *linearVelComp = ignition::gazebo::components::LinearVelocityCmd(this->dataPtr->linearVelCmd);
-        }
-    }
-    */
-
-
-    /*
-    {
-        std::lock_guard<std::mutex> lock(this->dataPtr->angularVelCmdMutex);
-        auto angularVelComp = _ecm.Component<ignition::gazebo::components::AngularVelocityCmd>(
-                this->dataPtr->linkEntity);
-
-        if (angularVelComp == nullptr) {
-            _ecm.CreateComponent(this->dataPtr->linkEntity,
-                                 ignition::gazebo::components::AngularVelocityCmd({this->dataPtr->angularVelCmd}));
-        } else {
-            *angularVelComp = ignition::gazebo::components::AngularVelocityCmd(this->dataPtr->angularVelCmd);
-        }
-    }
-     */
-
     // Set linear and angular velocity in local link (!) frame
     {
         std::lock_guard<std::mutex> lock(this->dataPtr->linearVelCmdMutex);
@@ -214,17 +145,6 @@ void KinematicControl::PreUpdate(const ignition::gazebo::UpdateInfo &_info,
 }
 
 //////////////////////////////////////////////////
-/*
-void KinematicControlPrivate::OnLinearVelCmd(const ignition::msgs::Vector3d &_msg) {
-    std::lock_guard<std::mutex> lock(this->linearVelCmdMutex);
-    this->linearVelCmd = ignition::msgs::Convert(_msg);
-}
-
-void KinematicControlPrivate::OnAngularVelCmd(const ignition::msgs::Vector3d &_msg) {
-    std::lock_guard<std::mutex> lock(this->angularVelCmdMutex);
-    this->angularVelCmd = ignition::msgs::Convert(_msg);
-}
- */
 
 void KinematicControlPrivate::OnVelCmd(const ignition::msgs::Twist &_msg){
     {
