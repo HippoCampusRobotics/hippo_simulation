@@ -62,10 +62,10 @@ void PluginPrivate::Publish(
   ignition::msgs::Set(twist->mutable_angular(), v_angular_local);
   ignition::msgs::Set(twist->mutable_linear(), v_linear_local);
   odometry_pub_.Publish(msg_);
-  PublishWorldLinearAcceleration(_ecm, stamp);
+  PublishAcceleration(_ecm, stamp);
 }
 
-void PluginPrivate::PublishWorldLinearAcceleration(
+void PluginPrivate::PublishAcceleration(
     const ignition::gazebo::EntityComponentManager &_ecm,
     const ignition::msgs::Time &_stamp) {
   ignition::msgs::Vector3d msg;
@@ -80,27 +80,23 @@ void PluginPrivate::PublishWorldLinearAcceleration(
   // set linear acceleration vector
   auto linear_acceleration = link_.WorldLinearAcceleration(_ecm).value_or(
       ignition::math::Vector3d::Zero);
-  auto pose = link_.WorldPose(_ecm);
-  auto linear_acceleration_local = pose->Rot().Inverse().RotateVector(linear_acceleration);
-  msg.set_x(linear_acceleration_local.X());
-  msg.set_y(linear_acceleration_local.Y());
-  msg.set_z(linear_acceleration_local.Z());
+  msg.set_x(linear_acceleration.X());
+  msg.set_y(linear_acceleration.Y());
+  msg.set_z(linear_acceleration.Z());
 
-  world_linear_acceleration_pub_.Publish(msg);
+  linear_acceleration_pub_.Publish(msg);
 }
 
-
-
-void PluginPrivate::PublishAcceleration(
-        const ignition::gazebo::EntityComponentManager &_ecm,
-        const std::chrono::steady_clock::duration &_sim_time) {
+void PluginPrivate::PublishAngularVelocity(
+    const ignition::gazebo::EntityComponentManager &_ecm,
+    const std::chrono::steady_clock::duration &_sim_time) {
   auto dt = _sim_time - last_angular_velocity_pub_time_;
   if (dt > std::chrono::steady_clock::duration::zero() &&
       dt < angular_velocity_update_period_) {
     return;
   }
   last_angular_velocity_pub_time_ = _sim_time;
-
+  
   ignition::msgs::Twist msg;
 
   auto header = msg.mutable_header();
@@ -111,36 +107,36 @@ void PluginPrivate::PublishAcceleration(
   frame->add_value(model_name_ + "/base_link");
 
   auto pose = link_.WorldPose(_ecm);
-  auto linear_acceleration = link_.WorldLinearAcceleration(_ecm).value_or(
-          ignition::math::Vector3d::Zero);
-  auto linear_acceleration_local = pose->Rot().Inverse().RotateVector(linear_acceleration);
+  auto angular_velocity = link_.WorldAngularVelocity(_ecm);
+  auto angular_velocity_local =
+      pose->Rot().Inverse().RotateVector(*angular_velocity);
   auto angular_acceleration = link_.WorldAngularAcceleration(_ecm);
   auto angular_acceleration_local =
-          pose->Rot().Inverse().RotateVector(*angular_acceleration);
-  ignition::msgs::Set(msg.mutable_linear(), linear_acceleration_local);
-  ignition::msgs::Set(msg.mutable_angular(), angular_acceleration_local);
-  accelerations_pub_.Publish(msg);
+      pose->Rot().Inverse().RotateVector(*angular_acceleration);
+  ignition::msgs::Set(msg.mutable_angular(), angular_velocity_local);
+  ignition::msgs::Set(msg.mutable_linear(), angular_acceleration_local);
+  angular_velocity_pub_.Publish(msg);
 }
-
 
 void PluginPrivate::Advertise() {
   odometry_pub_ =
       node_.Advertise<ignition::msgs::Odometry>(OdometryTopicName());
-  world_linear_acceleration_pub_ =
-      node_.Advertise<ignition::msgs::Vector3d>(WorldLinearAccelerationTopicName());
-  accelerations_pub_ =
-      node_.Advertise<ignition::msgs::Twist>(AccelerationsTopicName());
-  }
+  linear_acceleration_pub_ =
+      node_.Advertise<ignition::msgs::Vector3d>(AccelerationTopicName());
+  angular_velocity_pub_ =
+      node_.Advertise<ignition::msgs::Twist>(AngularVelocityTopicName());
+}
 
 std::string PluginPrivate::OdometryTopicName() {
   return "/" + model_name_ + "/" + sdf_params_.base_topic;
 }
 
-std::string PluginPrivate::WorldLinearAccelerationTopicName() {
-  return "/" + model_name_ + "/ground_truth/world_linear_acceleration";
+std::string PluginPrivate::AccelerationTopicName() {
+  return "/" + model_name_ + "/acceleration";
 }
-std::string PluginPrivate::AccelerationsTopicName() {
-  return "/" + model_name_ + "/ground_truth/accelerations";
+
+std::string PluginPrivate::AngularVelocityTopicName() {
+  return "/" + model_name_ + "/angular_velocity";
 }
 
 void PluginPrivate::InitHeader() {
@@ -165,10 +161,7 @@ void PluginPrivate::InitComponents(
                          ignition::gazebo::components::WorldPose());
   }
 
-    link_.EnableVelocityChecks(_ecm, true);
-
-
-    // create component for angular velocity
+  // create component for angular velocity
   if (!_ecm.Component<ignition::gazebo::components::AngularVelocity>(
           link_.Entity())) {
     _ecm.CreateComponent(link_.Entity(),

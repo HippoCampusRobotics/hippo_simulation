@@ -1,5 +1,4 @@
 #include <geometry_msgs/msg/vector3_stamped.hpp>
-#include <geometry_msgs/msg/twist_stamped.hpp>
 #include <hippo_msgs/msg/actuator_controls.hpp>
 #include <hippo_msgs/msg/angular_velocity.hpp>
 #include <hippo_msgs/msg/esc_rpms.hpp>
@@ -30,26 +29,26 @@ class Bridge {
     CreateImuBridge();
     CreateThrusterBridge();
     CreateBarometerBridge();
-    CreateWorldLinearAccelerationBridge();
-    CreateAccelerationsBridge();
+    CreateLinearAccelerationBridge();
+    CreateAngularVelocityBridge();
   }
 
-  void CreateAccelerationsBridge() {
+  void CreateAngularVelocityBridge() {
     std::string name;
-    name = node_topics->resolve_topic_name("ground_truth/accelerations");
-    accelerations_pub_ =
-        ros_node_->create_publisher<geometry_msgs::msg::TwistStamped>(
+    name = node_topics->resolve_topic_name("angular_velocity");
+    angular_velocity_pub_ =
+        ros_node_->create_publisher<hippo_msgs::msg::AngularVelocity>(
             name, rclcpp::SystemDefaultsQoS());
-    gz_node_->Subscribe(name, &Bridge::OnAccelerations, this);
+    gz_node_->Subscribe(name, &Bridge::OnAngularVelocity, this);
   }
 
-  void CreateWorldLinearAccelerationBridge() {
+  void CreateLinearAccelerationBridge() {
     std::string name;
-    name = node_topics->resolve_topic_name("ground_truth/world_linear_acceleration");
-    world_linear_acceleration_pub_ =
+    name = node_topics->resolve_topic_name("acceleration");
+    linear_acceleration_pub_ =
         ros_node_->create_publisher<geometry_msgs::msg::Vector3Stamped>(
             name, rclcpp::SystemDefaultsQoS());
-    gz_node_->Subscribe(name, &Bridge::OnWorldLinearAcceleration, this);
+    gz_node_->Subscribe(name, &Bridge::OnLinearAcceleration, this);
   }
 
   void CreateBarometerBridge() {
@@ -122,18 +121,23 @@ class Bridge {
         std::bind(&Bridge::OnThrusterCommand, this, _1));
   }
 
-  void OnAccelerations(const gz_msgs::Twist &_msg) {
-    geometry_msgs::msg::TwistStamped ros_msg;
-    ros_gz_bridge::convert_gz_to_ros(_msg.header(), ros_msg.header);
-    ros_gz_bridge::convert_gz_to_ros(_msg, ros_msg.twist);
-    accelerations_pub_->publish(ros_msg);
+  void OnAngularVelocity(const gz_msgs::Twist &_msg) {
+    hippo_msgs::msg::AngularVelocity ros_msg;
+    ros_msg.header.stamp = ros_node_->now();
+    ros_msg.body_rates[0] = _msg.angular().x();
+    ros_msg.body_rates[1] = _msg.angular().y();
+    ros_msg.body_rates[2] = _msg.angular().z();
+    ros_msg.body_rates_derivative[0] = _msg.linear().x();
+    ros_msg.body_rates_derivative[1] = _msg.linear().y();
+    ros_msg.body_rates_derivative[2] = _msg.linear().z();
+    angular_velocity_pub_->publish(ros_msg);
   }
 
-  void OnWorldLinearAcceleration(const gz_msgs::Vector3d &_msg) {
+  void OnLinearAcceleration(const gz_msgs::Vector3d &_msg) {
     geometry_msgs::msg::Vector3Stamped ros_msg;
     ros_gz_bridge::convert_gz_to_ros(_msg, ros_msg.vector);
     ros_gz_bridge::convert_gz_to_ros(_msg.header(), ros_msg.header);
-    world_linear_acceleration_pub_->publish(ros_msg);
+    linear_acceleration_pub_->publish(ros_msg);
   }
 
   void OnPressure(const gz_msgs::FluidPressure &_msg) {
@@ -214,16 +218,15 @@ class Bridge {
   EscRpms thrusters_rpm_msg_;
   ThrusterForces thruster_forces_msg_;
 
-  rclcpp::Publisher<rosgraph_msgs::msg::Clock>::SharedPtr clock_pub_;
   rclcpp::Publisher<Imu>::SharedPtr imu_pub_;
   rclcpp::Publisher<PoseStamped>::SharedPtr pose_pub_;
   rclcpp::Publisher<Odometry>::SharedPtr odometry_pub_;
   rclcpp::Publisher<ThrusterForces>::SharedPtr thruster_forces_pub_;
   rclcpp::Publisher<sensor_msgs::msg::FluidPressure>::SharedPtr pressure_pub_;
   rclcpp::Publisher<geometry_msgs::msg::Vector3Stamped>::SharedPtr
-      world_linear_acceleration_pub_;
-  rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr
-      accelerations_pub_;
+      linear_acceleration_pub_;
+  rclcpp::Publisher<hippo_msgs::msg::AngularVelocity>::SharedPtr
+      angular_velocity_pub_;
 
   std::map<int, transport::Node::Publisher> throttle_cmd_pubs_;
   rclcpp::Publisher<EscRpms>::SharedPtr rpm_pub_;

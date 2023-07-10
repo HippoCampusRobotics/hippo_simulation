@@ -105,7 +105,6 @@ add_plugin(range_sensor)
 add_subdirectory(src/hydrodynamics)
 # add_subdirectory(src/odometry)
 add_subdirectory(src/pose)
-add_subdirectory(src/kinematic_control)
 
 ament_environment_hooks("${CMAKE_CURRENT_SOURCE_DIR}/env-hooks/${PROJECT_NAME}.dsv.in")
 

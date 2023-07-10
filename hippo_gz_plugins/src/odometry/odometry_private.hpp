@@ -20,8 +20,7 @@ class PluginPrivate {
                const ignition::msgs::Time &stamp);
   void Advertise();
 
-  //! Publishes linear and angular acceleration as combined twist message in body frame
-  void PublishAcceleration(
+  void PublishAngularVelocity(
       const ignition::gazebo::EntityComponentManager &_ecm,
       const std::chrono::steady_clock::duration &_sim_time);
 
@@ -41,11 +40,10 @@ class PluginPrivate {
   void InitHeader();
   void InitComponents(ignition::gazebo::EntityComponentManager &_ecm);
   std::string OdometryTopicName();
-  std::string WorldLinearAccelerationTopicName();
-  std::string AccelerationsTopicName();
+  std::string AccelerationTopicName();
+  std::string AngularVelocityTopicName();
 
-  //! Publishes linear acceleration in inertial coordinate system
-  void PublishWorldLinearAcceleration(const ignition::gazebo::EntityComponentManager &_ecm,
+  void PublishAcceleration(const ignition::gazebo::EntityComponentManager &_ecm,
                            const ignition::msgs::Time &_stamp);
 
   ignition::gazebo::Model model_{ignition::gazebo::kNullEntity};
@@ -53,8 +51,8 @@ class PluginPrivate {
   ignition::gazebo::Link link_{ignition::gazebo::kNullEntity};
   ignition::transport::Node node_;
   ignition::transport::Node::Publisher odometry_pub_;
-  ignition::transport::Node::Publisher world_linear_acceleration_pub_;  //!< publishes linear acceleration in inertial COS
-  ignition::transport::Node::Publisher accelerations_pub_;  //!< publishes linear and angular local acceleration
+  ignition::transport::Node::Publisher linear_acceleration_pub_;
+  ignition::transport::Node::Publisher angular_velocity_pub_;
   ignition::msgs::Odometry msg_;
 };
 }  // namespace odometry
