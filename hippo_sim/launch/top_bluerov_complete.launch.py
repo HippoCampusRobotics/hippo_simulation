@@ -15,8 +15,8 @@ def generate_launch_description():
     estimation_package_path = get_package_share_path('bluerov_estimation')
     estimation_path = str(estimation_package_path / "launch/estimation.launch.py")
     traj_gen_path = str(ctrl_package_path / "launch/node_trajectory_gen_eight.launch.py")
-    visualization_package_path = get_package_share_path('alpha_visualization')
-    visualization_path = str(visualization_package_path / "launch/pose_visualization.launch.py")
+    visualization_package_path = get_package_share_path('uvms_visualization')
+    visualization_path = str(visualization_package_path / "launch/visualization.launch.py")
     rviz_path = str(package_path / "launch/rviz.launch.py")
     model_path_rviz = str(package_path / 'models/bluerov/urdf/bluerov_rviz.xacro')
 
@@ -28,7 +28,7 @@ def generate_launch_description():
             str(package_path / "launch/start_gazebo.launch.py")
         )
     )
-    paths = [spawner_path, traj_gen_path, visualization_path]
+    paths = [spawner_path, traj_gen_path]
     launch_files = []
 
     for path in paths:
@@ -91,6 +91,14 @@ def generate_launch_description():
             estimation_path
         ),
         launch_arguments=dict(use_sim_time=str(use_sim_time),
+                              vehicle_name=vehicle_name).items()
+    ))
+    launch_files.append(launch.actions.IncludeLaunchDescription(
+        launch.launch_description_sources.PythonLaunchDescriptionSource(
+            visualization_path
+        ),
+        launch_arguments=dict(visualization_modules="[2, 3, 4, 5]",
+                                use_sim_time=str(use_sim_time),
                               vehicle_name=vehicle_name).items()
     ))
 
