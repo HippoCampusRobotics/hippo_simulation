@@ -3,7 +3,7 @@
     <xacro:include filename="$(find hippo_sim)/models/bluerov/urdf/bluerov_params.xacro" />
     <xacro:include filename="$(find hippo_sim)/models/thruster/urdf/thruster_macro.xacro" />
     <xacro:include filename="$(find hippo_sim)/models/hippo3/urdf/mount_macro.xacro" />
-    <xacro:bluerov base_link_name="$(arg base_link_name)" link_ns="$(arg vehicle_name)/">
+    <xacro:include filename="$(find hippo_sim)/models/hippo3/urdf/clamp_macro.xacro" />
     <!-- <xacro:include filename="$(find hippo_sim)/models/range_sensor/urdf/range_sensor_macro.xacro" />
     <xacro:include filename="$(find hippo_sim)/models/camera/urdf/camera_macro.xacro" /> -->
 

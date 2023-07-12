@@ -16,7 +16,7 @@ void Plugin::Configure(
     const std::shared_ptr<const sdf::Element> &_sdf,
     ignition::gazebo::EntityComponentManager &_ecm,
     [[maybe_unused]] ignition::gazebo::EventManager &_eventMgr) {
-    private_->ParseSdf(_sdf);
+  private_->ParseSdf(_sdf);
   if (!private_->InitModel(_ecm, _entity)) {
     ignerr << "Plugin needs to be attached to model entity." << std::endl;
     return;

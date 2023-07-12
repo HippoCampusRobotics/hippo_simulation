@@ -67,7 +67,6 @@ def generate_launch_description():
              output='screen'),
         Node(package='hippo_sim',
              executable='fake_state_estimator',
-                                parameters=[{'use_sim_time' : use_sim_time}],
              name='state_estimator',
              parameters=[
                  {
@@ -78,7 +77,6 @@ def generate_launch_description():
              condition=IfCondition(LaunchConfiguration(
                  'fake_state_estimation'))),
         Node(package='hippo_sim',
-    """
              executable="fake_vision",
              name="vision",
              parameters=[
@@ -97,6 +95,7 @@ def generate_launch_description():
              ],
              condition=UnlessCondition(
                  LaunchConfiguration('fake_state_estimation'))),
+    ])
 
     launch_path = str(
         get_package_share_path('hippo_common') /
