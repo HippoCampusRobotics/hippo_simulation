@@ -6,7 +6,7 @@
     <xacro:property name="thruster_izz" value="1e-6" />
     <!-- based on 14V performance data and forced interception at 0.0 -->
     <xacro:property name="thrust_quadratic_coeff" value="0.015547" />
-    <xacro:property name="thrust_linear_coeff" value="0.04243" />
+    <xacro:property name="thrust_linear_coeff" value="-0.04243" />
     <xacro:property name="thrust_constant_coeff" value="0.0" />
     <xacro:property name="torque_constant" value="0.0" />
 

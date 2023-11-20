@@ -93,7 +93,7 @@ class PluginPrivate {
    */
   double ThrottleToVelocity(double _throttle) {
     // simulate kind of deadband
-    if (std::abs(_throttle) < 0.0) {
+    if (std::abs(_throttle) < 0.11) {
       return 0.0;
     }
     return _throttle * turning_direction_ * sdf_params_.maximum_rpm / 60.0 *
