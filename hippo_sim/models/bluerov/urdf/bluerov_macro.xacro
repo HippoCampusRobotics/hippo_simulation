@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="hippocampus">
+    <xacro:macro name="bluerov" params="base_link_name:=base_link link_ns use_uvms_param:=False rviz_model:=False simulate_kinematics:=False">
+        <xacro:if value="${use_uvms_param == True}">
+            <xacro:include filename="$(find hippo_sim)/models/bluerov/urdf/bluerov_params_uvms.xacro" />
+        </xacro:if>
+        <xacro:unless value="${use_uvms_param == True}">
+            <xacro:include filename="$(find hippo_sim)/models/bluerov/urdf/bluerov_params.xacro" />
+        </xacro:unless>
+        <xacro:include filename="$(find hippo_sim)/models/bluerov/urdf/bluerov_thrusters.xacro" />
+        <!-- <xacro:include filename="$(find hippo_sim)/models/range_sensor/urdf/range_sensor_macro.xacro" /> -->
+        <xacro:include filename="$(find hippo_sim)/models/camera/urdf/camera_macro.xacro" />
+
+        <xacro:property name="thruster_xy" value="${thruster_r / 2**0.5}" />
+
+        <gazebo>
+            <static>false</static>
+        </gazebo>
+
+        <link name="${link_ns}/${base_link_name}">
+            <xacro:unless value="${rviz_model == True}">
+            <inertial name="base_link_inertial">
+                <mass value="${base_mass}" />
+                <inertia ixx="${ixx}" ixy="0.0" ixz="0.0" iyy="${iyy}" iyz="0.0" izz="${izz}" />
+            </inertial>
+            </xacro:unless>
+            <visual name="base_link_visual">
+                <geometry>
+                    <mesh filename="file://$(find hippo_sim)/models/bluerov/meshes/bluerov.dae" />
+                </geometry>
+            </visual>
+        </link>
+
+        <xacro:unless value="${rviz_model == True}">
+            <xacro:bluerov_thrusters parent_link="${link_ns}/${base_link_name}"/>
+
+            <xacro:if value="$(arg use_vertical_camera)">
+                <xacro:camera_macro parent="base_link"
+                    prefix="vertical_camera" xyz="${vertical_camera_position}"
+                    rpy="${vertical_camera_orientation}" />
+            </xacro:if>
+
+            <xacro:if value="$(arg use_front_camera)">
+                <xacro:camera_macro parent="${link_ns}/${base_link_name}"
+                    prefix="front_camera" xyz="${front_camera_position}"
+                    rpy="${front_camera_orientation}" />
+            </xacro:if>
+
+        </xacro:unless>
+
+        <gazebo>
+
+            <xacro:if value="${simulate_kinematics == True}">
+                <plugin filename="kinematic_control" name="hippo_gz_plugins::kinematic_control">
+                    <link_name>${link_ns}/${base_link_name}</link_name>
+                </plugin>
+                <!--
+                <plugin name="ignition::gazebo::systems::VelocityControl" filename="ignition-gazebo-velocity-control-system">
+                    <link_name>${link_ns}/${base_link_name}</link_name>
+                </plugin>
+                -->
+            </xacro:if>
+            <xacro:unless value="${simulate_kinematics == True}">
+                <plugin filename="buoyancy" name="hippo_gz_plugins::buoyancy">
+                    <buoyancy>
+                        <link_name>${link_ns}/${base_link_name}</link_name>
+                        <origin>${buoyancy_origin}</origin>
+                        <force_added>0</force_added>
+                        <compensation>${buoyancy_compensation}</compensation> <!-- 1.01 -->
+                        <height_scale_limit>0.1</height_scale_limit>
+                    </buoyancy>
+                </plugin>
+
+                <plugin filename="hydrodynamics" name="hippo_gz_plugins::hydrodynamics">
+                    <hydrodynamics>
+                        <link>${link_ns}/${base_link_name}</link>
+                        <added_mass_linear>${added_mass_linear}</added_mass_linear>
+                        <added_mass_angular>${added_mass_angular}</added_mass_angular>
+                        <damping_linear>${damping_linear}</damping_linear>
+                        <damping_angular>${damping_angular}</damping_angular>
+                    </hydrodynamics>
+                </plugin>
+            </xacro:unless>
+
+            <plugin filename="pose" name="hippo_gz_plugins::pose">
+                <link>${link_ns}/${base_link_name}</link>
+                <update_rate>50.0</update_rate>
+                <base_topic>ground_truth/pose</base_topic>
+            </plugin>
+
+            <plugin filename="odometry" name="hippo_gz_plugins::odometry">
+                <link>${link_ns}/${base_link_name}</link>
+                <update_rate>50.0</update_rate>
+                <base_topic>ground_truth/odometry</base_topic>
+            </plugin>
+
+            <plugin filename="barometer" name="hippo_gz_plugins::barometer">
+                <link>${link_ns}/${base_link_name}</link>
+                <update_rate>100.0</update_rate>
+                <base_topic>pressure</base_topic>
+                <atmospheric_pressure>101325.0</atmospheric_pressure>
+                <water_surface_offset>0.0</water_surface_offset>
+                <position>-0.15 0 0</position>
+            </plugin>
+
+            <xacro:if value="$(arg use_range_sensor)">
+                <plugin filename="range_sensor" name="hippo_gz_plugins::range_sensor">
+                    <link>base_link</link>
+                    <range_topic>range_topic</range_topic>
+                    <update_rate>20.0</update_rate>
+                    <model name="range_tag_00">
+                        <link>base_link</link>
+                        <id>0</id>
+                    </model>
+                    <model name="range_tag_01">
+                        <link>base_link</link>
+                        <id>1</id>
+                    </model>
+                    <model name="range_tag_02">
+                        <link>base_link</link>
+                        <id>2</id>
+                    </model>
+                    <model name="range_tag_03">
+                        <link>base_link</link>
+                        <id>3</id>
+                    </model>
+                </plugin>
+            </xacro:if>
+        </gazebo>
+    </xacro:macro>
+</robot>

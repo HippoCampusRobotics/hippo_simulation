@@ -8,8 +8,17 @@
     <xacro:property name="added_mass_angular" value="0 0 0" />
     <xacro:property name="damping_linear" value="7 7 7" />
     <xacro:property name="damping_angular" value="0.3 0.3 0.3" />
-    <xacro:property name="buoyancy_compensation" value="1.001" />
-    <xacro:property name="buoyancy_origin" value="0 0 0.005" />
+    <!--  0.899 / 11.0 (mass bluerov) = 0.0817-->
+    <xacro:property name="buoyancy_compensation_AUV" value="1.001" /> <!--1.001 default -->
+    <xacro:property name="buoyancy_origin_AUV" value="${[0, 0, 0.005]}" />
+    <xacro:property name="buoyancy_compensation_added" value="0.0817" /> <!-- must be the same as for controller! -->
+    <xacro:property name="buoyancy_origin_added" value="${[0, 0, 0.05]}" />
+
+    <xacro:property name="buoyancy_compensation" value="${buoyancy_compensation_AUV + buoyancy_compensation_added}" />
+    <xacro:property name="buoyancy_origin" value="${(buoyancy_origin_AUV[0] * buoyancy_compensation_AUV + buoyancy_origin_added[0] * buoyancy_compensation_added) / (buoyancy_compensation_AUV + buoyancy_compensation_added)}
+            ${(buoyancy_origin_AUV[1] * buoyancy_compensation_AUV + buoyancy_origin_added[1] * buoyancy_compensation_added) / (buoyancy_compensation_AUV + buoyancy_compensation_added)}
+            ${(buoyancy_origin_AUV[2] * buoyancy_compensation_AUV + buoyancy_origin_added[2] * buoyancy_compensation_added) / (buoyancy_compensation_AUV + buoyancy_compensation_added)}" />
+
     <xacro:property name="barometer_position" value="-0.15 0 -0.05" />
     <xacro:property name="barometer_noise" value="100.0" />
 
@@ -17,6 +26,8 @@
     <xacro:property name="imu_position" value="0.15 0 0.05" />
     <xacro:property name="imu_orientation" value="${radians(0)} ${radians(0)} ${radians(0)}"/>
     <xacro:property name="imu_noise" value="0.0003"/>
+
+    <xacro:property name="thruster_r" value="0.097" />
 
     <xacro:arg name="use_range_sensor" default="false" />
     <xacro:property name="range_sensor_position" value="0.2 0 0.1" />
