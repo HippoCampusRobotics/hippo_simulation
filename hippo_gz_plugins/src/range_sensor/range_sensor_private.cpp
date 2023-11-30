@@ -1,5 +1,6 @@
 #include "range_sensor_private.hpp"
 
+#include <gz/sim/Util.hh>
 #include <ignition/gazebo/components/Model.hh>
 #include <ignition/gazebo/components/Name.hh>
 #include <ignition/gazebo/components/Pose.hh>
@@ -69,8 +70,11 @@ bool PluginPrivate::InitModel(ignition::gazebo::EntityComponentManager &_ecm,
 }
 
 std::optional<double> PluginPrivate::GetRange(
-    const TargetModel &_target,
+    TargetModel &_target,
     const ignition::gazebo::EntityComponentManager &_ecm) {
+  if (!_target.active) {
+    return std::nullopt;
+  }
   auto pose = GetPose(_ecm);
   auto target_pose = GetTargetPose(_ecm, _target);
   if (!pose) {
@@ -78,7 +82,8 @@ std::optional<double> PluginPrivate::GetRange(
     return std::nullopt;
   }
   if (!target_pose) {
-    ignwarn << "Cannot get target model postion" << std::endl;
+    ignwarn << "Cannot get target model postion. Deactivating it." << std::endl;
+    _target.active = false;
     return std::nullopt;
   }
   ignition::math::Vector3<double> diff = (*pose).Pos() - (*target_pose).Pos();
@@ -99,14 +104,8 @@ std::optional<ignition::math::Pose3d> PluginPrivate::GetTargetPose(
   if (model == ignition::gazebo::kNullEntity) {
     return std::nullopt;
   }
-  ignition::gazebo::Link link = ignition::gazebo::Link(
-      ignition::gazebo::Model(model).LinkByName(_ecm, _target.link));
-
-  if (!link.Valid(_ecm)) {
-    ignerr << "Link for model [" << _target.name << "] not available.";
-    return std::nullopt;
-  }
-  return link.WorldPose(_ecm);
+  ignition::math::Pose3d pose = ignition::gazebo::worldPose(model, _ecm);
+  return pose;
 }
 
 bool PluginPrivate::DropMeasurement(
@@ -159,22 +158,10 @@ void PluginPrivate::UpdateTargetComponents(
         _ecm.EntityByComponents(ignition::gazebo::components::Name(target.name),
                                 ignition::gazebo::components::Model());
     if (model == ignition::gazebo::kNullEntity) {
+      target.active = false;
       return;
     }
-    ignition::gazebo::Link link = ignition::gazebo::Link(
-        ignition::gazebo::Model(model).LinkByName(_ecm, target.link));
-
-    if (!link.Valid(_ecm)) {
-      ignerr << "Link for model [" << target.name << "] not available.";
-      return;
-    }
-
-    if (!_ecm.Component<ignition::gazebo::components::WorldPose>(
-            link.Entity())) {
-      _ecm.CreateComponent(link.Entity(),
-                           ignition::gazebo::components::WorldPose());
-      return;
-    }
+    target.active = true;
   }
 }
 

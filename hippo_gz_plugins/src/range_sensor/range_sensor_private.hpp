@@ -31,6 +31,7 @@ class PluginPrivate {
     int id;
     std::string name{""};
     std::string link{"base_link"};
+    bool active{true};
   };
 
   struct SdfParams {
@@ -49,7 +50,7 @@ class PluginPrivate {
   void InitComponents(ignition::gazebo::EntityComponentManager &_ecm);
 
   std::optional<double> GetRange(
-      const TargetModel &_target,
+      TargetModel &_target,
       const ignition::gazebo::EntityComponentManager &_ecm);
 
   std::string TopicPrefix() { return "/" + model_name_; }
