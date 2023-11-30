@@ -134,10 +134,7 @@ bool PluginPrivate::DropMeasurement(
            (target_normal_vec.Length() * normal_vec.Length()));
   bool is_visible = (fov_angle < sdf_params_.fov_angle / 2.0) &&
                     (viewing_angle < sdf_params_.max_viewing_angle);
-  ignerr << "Fov Angle: " << std::to_string(fov_angle) << "\n";
-  ignerr << "FoV Limit: " << std::to_string(sdf_params_.fov_angle) << std::endl;
   if (!is_visible) {
-    ignerr << "Not visible." << std::endl;
     return true;
   }
   double p = uniform_distribution_(random_generator_);
