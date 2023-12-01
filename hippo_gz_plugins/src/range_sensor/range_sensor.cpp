@@ -31,6 +31,7 @@ void Plugin::Configure(
 void Plugin::Update([[maybe_unused]] const ignition::gazebo::UpdateInfo &_info,
                     ignition::gazebo::EntityComponentManager &_ecm) {
   private_->UpdateTargetComponents(_ecm);
+  private_->InitComponents(_ecm);
 }
 
 void Plugin::PostUpdate(const ignition::gazebo::UpdateInfo &_info,

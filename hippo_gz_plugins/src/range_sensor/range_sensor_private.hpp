@@ -25,6 +25,7 @@ class PluginPrivate {
   }
 
   void UpdateTargetComponents(ignition::gazebo::EntityComponentManager &_ecm);
+  void InitComponents(ignition::gazebo::EntityComponentManager &_ecm);
 
  private:
   struct TargetModel {
@@ -46,8 +47,6 @@ class PluginPrivate {
     double drop_probability_exp{2.0};
     std::vector<TargetModel> target_models;
   } sdf_params_;
-
-  void InitComponents(ignition::gazebo::EntityComponentManager &_ecm);
 
   std::optional<double> GetRange(
       TargetModel &_target,
