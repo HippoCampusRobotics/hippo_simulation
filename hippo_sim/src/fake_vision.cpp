@@ -7,10 +7,10 @@
 
 class FakeVision : public rclcpp::Node {
  public:
-  FakeVision() : Node("fake_vision") {
+  FakeVision() : Node("vision") {
     DeclareParameters();
     pose_pub_ = create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
-        "vision_pose", rclcpp::SystemDefaultsQoS());
+        "vision_pose_cov", rclcpp::SystemDefaultsQoS());
 
     ground_truth_sub_ = create_subscription<nav_msgs::msg::Odometry>(
         "ground_truth/odometry", rclcpp::SystemDefaultsQoS(),
