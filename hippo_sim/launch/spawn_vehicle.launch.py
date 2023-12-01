@@ -29,7 +29,7 @@ def generate_launch_description() -> LaunchDescription:
     fake_estimator_launch_arg = DeclareLaunchArgument(
         name='fake_state_estimation', default_value='true')
     fake_vision_launch_arg = DeclareLaunchArgument(name='fake_vision',
-                                                   default_value='false')
+                                                   default_value='true')
 
     robot_description = LaunchConfiguration(
         'robot_description',
