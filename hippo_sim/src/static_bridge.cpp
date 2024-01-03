@@ -4,6 +4,7 @@
 #include <hippo_msgs/msg/esc_rpms.hpp>
 #include <hippo_msgs/msg/thruster_forces.hpp>
 #include <ignition/transport/Node.hh>
+#include <rclcpp/experimental/executors/events_executor/events_executor.hpp>
 #include <rclcpp/node_interfaces/node_topics.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <ros_gz_bridge/convert.hpp>
@@ -205,10 +206,9 @@ class Bridge {
     }
   }
 
-  void Run() { rclcpp::spin(ros_node_); }
+  rclcpp::Node::SharedPtr ros_node_ = std::make_shared<rclcpp::Node>("bridge");
 
  private:
-  rclcpp::Node::SharedPtr ros_node_ = std::make_shared<rclcpp::Node>("bridge");
   std::shared_ptr<transport::Node> gz_node_ =
       std::make_shared<transport::Node>();
   rclcpp::node_interfaces::NodeTopics *node_topics;
@@ -235,6 +235,8 @@ class Bridge {
 
 int main(int _argc, char **_argv) {
   rclcpp::init(_argc, _argv);
-  auto bridge = Bridge();
-  bridge.Run();
+  rclcpp::experimental::executors::EventsExecutor exec;
+  Bridge bridge;
+  exec.add_node(bridge.ros_node_);
+  exec.spin();
 }

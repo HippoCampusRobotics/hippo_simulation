@@ -1,8 +1,10 @@
 #include <chrono>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <hippo_common/param_utils.hpp>
+#include <mutex>
 #include <nav_msgs/msg/odometry.hpp>
 #include <queue>
+#include <rclcpp/experimental/executors/events_executor/events_executor.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 class FakeVision : public rclcpp::Node {
@@ -62,6 +64,7 @@ class FakeVision : public rclcpp::Node {
   }
 
   void Update() {
+    std::lock_guard<std::mutex> lock{mutex_};
     if (pose_msgs_.empty()) {
       return;
     }
@@ -77,6 +80,7 @@ class FakeVision : public rclcpp::Node {
     geometry_msgs::msg::PoseWithCovarianceStamped pose_msg;
     pose_msg.header = _msg->header;
     pose_msg.pose.pose = _msg->pose.pose;
+    std::lock_guard<std::mutex> lock{mutex_};
     pose_msgs_.push(pose_msg);
   }
 
@@ -117,11 +121,15 @@ class FakeVision : public rclcpp::Node {
   std::queue<geometry_msgs::msg::PoseWithCovarianceStamped> pose_msgs_;
   GeneralParams params_;
   OnSetParametersCallbackHandle::SharedPtr params_cb_handle_;
+  std::mutex mutex_;
 };
 
 int main(int argc, char **argv) {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<FakeVision>());
+  rclcpp::experimental::executors::EventsExecutor exec;
+  auto node = std::make_shared<FakeVision>();
+  exec.add_node(node);
+  exec.spin();
   rclcpp::shutdown();
   return 0;
 }
