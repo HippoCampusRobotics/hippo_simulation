@@ -48,12 +48,18 @@
                     </clip>
                     <lens>
                         <intrinsics>
-                         <fx>${width/2.0/tan(horizontal_fov/2.0)}</fx>
-                         <fy>${width/2.0/tan(horizontal_fov/2.0)}</fy>
-                         <cx>${width/2.0}</cx>
-                         <cy>${height/2.0}</cy>
-                         <s>0</s>
+                            <fx>${width/2.0/tan(horizontal_fov/2.0)}</fx>
+                            <fy>${width/2.0/tan(horizontal_fov/2.0)}</fy>
+                            <cx>${width/2.0}</cx>
+                            <cy>${height/2.0}</cy>
+                            <s>0</s>
                         </intrinsics>
+                        <projection>
+                            <p_fx>${width/2.0/tan(horizontal_fov/2.0)}</p_fx>
+                            <p_fy>${width/2.0/tan(horizontal_fov/2.0)}</p_fy>
+                            <p_cx>${width/2.0}</p_cx>
+                            <p_cy>${height/2.0}</p_cy>
+                        </projection>
                     </lens>
                 </camera>
                 <always_on>1</always_on>
