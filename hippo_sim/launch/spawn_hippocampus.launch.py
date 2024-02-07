@@ -42,6 +42,7 @@ def generate_launch_description() -> LaunchDescription:
     args = {
         'model_path': path,
         'use_acoustic_modem': LaunchConfiguration('use_acoustic_modem'),
+        'use_vertical_camera': LaunchConfiguration('use_vertical_camera'),
     }
     action = IncludeLaunchDescription(source, launch_arguments=args.items())
     launch_description.add_action(action)

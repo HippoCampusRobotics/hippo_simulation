@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-    <xacro:macro name="camera_macro" params="prefix parent xyz rpy">
+    <xacro:macro name="camera_macro" params="prefix parent topic_prefix ignition_frame_id xyz rpy">
         <xacro:include filename="$(find hippo_sim)/models/common/urdf/common.xacro" />
         <xacro:include filename="$(find hippo_sim)/models/camera/urdf/camera_params.xacro" />
-        <xacro:property name="link" value="$(arg vehicle_name)/${prefix}_link" />
-        <xacro:property name="joint" value="$(arg vehicle_name)/${prefix}_joint" />
+        <xacro:property name="link" value="${prefix}_link" />
+        <xacro:property name="joint" value="${prefix}_joint" />
 
         <link name="${link}">
             <xacro:zero_inertia />
@@ -34,14 +34,14 @@
                     <specular>1 1 1 1</specular>
                 </material>
             </visual>
-            <sensor name="$(arg vehicle_name)_${prefix}" type="camera">
+            <sensor name="${prefix}" type="camera">
                 <camera>
                     <noise>
                         <type>gaussian</type>
                         <mean>0</mean>
                         <stddev>0.1</stddev>
                     </noise>
-                    <camera_info_topic>$(arg vehicle_name)/${prefix}/camera_info</camera_info_topic>
+                    <camera_info_topic>${prefix}/camera_info</camera_info_topic>
                     <horizontal_fov>${horizontal_fov}</horizontal_fov>
                     <image>
                         <width>${width}</width>
@@ -70,9 +70,9 @@
                 <always_on>1</always_on>
                 <update_rate>${fps}</update_rate>
                 <visualize>true</visualize>
-                <topic>$(arg vehicle_name)/${prefix}/image_rect</topic>
+                <topic>${topic_prefix}/image_rect</topic>
                 <!-- needs to be changed to gz_frame_id in the future -->
-                <ignition_frame_id>$(arg vehicle_name)::${prefix}</ignition_frame_id>
+                <ignition_frame_id>${ignition_frame_id}</ignition_frame_id>
             </sensor>
         </gazebo>
 

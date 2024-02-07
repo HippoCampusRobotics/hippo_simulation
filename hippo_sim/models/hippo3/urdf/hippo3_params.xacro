@@ -4,12 +4,18 @@
     <xacro:property name="ixx" value="0.0024" />
     <xacro:property name="iyy" value="0.010717" />
     <xacro:property name="izz" value="0.010717" />
+
     <xacro:property name="thruster_r" value="0.097" />
+
     <xacro:property name="added_mass_linear" value="1.11 2.8 2.8" />
     <xacro:property name="added_mass_angular" value="0.00451 0.0163 0.0163"/>
     <xacro:property name="damping_linear" value="5.39 17.36 17.36"/>
     <xacro:property name="damping_angular" value="0.00174 0.007 0.007"/>
-    <xacro:property name="camera_position" value="0.15, 0.0 -0.03" />
+
+    <xacro:arg name="use_vertical_camera" default="false" />
+    <xacro:property name="vertical_camera_position" value="0.15, 0.0 -0.03" />
+    <xacro:property name="vertical_camera_orientation" value="0 ${radians(90)} 0" />
+
     <xacro:arg name="use_acoustic_modem" default="false" />
     <xacro:property name="modem_position" value="0 0 -0.1" />
     <xacro:property name="modem_orientation" value="0 0 0" />

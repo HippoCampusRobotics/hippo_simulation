@@ -40,13 +40,17 @@
 
             <xacro:if value="$(arg use_vertical_camera)">
                 <xacro:camera_macro parent="${link_ns}/${base_link_name}"
-                    prefix="vertical_camera" xyz="${vertical_camera_position}"
+                    prefix="${link_ns}/vertical_camera" topic_prefix="${link_ns}/vertical_camera"
+                    ignition_frame_id="${link_ns}::vertical_camera" 
+                    xyz="${vertical_camera_position}"
                     rpy="${vertical_camera_orientation}" />
             </xacro:if>
 
             <xacro:if value="$(arg use_front_camera)">
                 <xacro:camera_macro parent="${link_ns}/${base_link_name}"
-                    prefix="front_camera" xyz="${front_camera_position}"
+                    prefix="${link_ns}/front_camera" topic_prefix="${link_ns}/front_camera"
+                    ignition_frame_id="${link_ns}::front_camera" 
+                    xyz="${front_camera_position}"
                     rpy="${front_camera_orientation}" />
             </xacro:if>
 
