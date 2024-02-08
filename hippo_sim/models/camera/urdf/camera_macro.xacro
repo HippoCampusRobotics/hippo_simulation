@@ -41,7 +41,7 @@
                         <mean>0</mean>
                         <stddev>0.1</stddev>
                     </noise>
-                    <camera_info_topic>${prefix}/camera_info</camera_info_topic>
+                    <camera_info_topic>${topic_prefix}/camera_info</camera_info_topic>
                     <horizontal_fov>${horizontal_fov}</horizontal_fov>
                     <image>
                         <width>${width}</width>
