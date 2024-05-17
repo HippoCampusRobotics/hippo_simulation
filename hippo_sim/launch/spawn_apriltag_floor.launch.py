@@ -15,11 +15,13 @@ def add_generate_pool_node(launch_description: LaunchDescription):
     cmd = 'ros2 run hippo_sim generate_pool.py'
     sdf = LaunchConfiguration('sdf', default=Command([cmd, *args]))
     params = {'description': sdf}
-    action = Node(package='hippo_sim',
-                  executable='spawn',
-                  parameters=[params],
-                  arguments=['--param', 'description'],
-                  output='screen')
+    action = Node(
+        package='hippo_sim',
+        executable='spawn',
+        parameters=[params],
+        arguments=['--param', 'description'],
+        output='screen',
+    )
     launch_description.add_action(action)
 
 
@@ -31,13 +33,17 @@ def declare_launch_arguments(launch_description: LaunchDescription):
     action = DeclareLaunchArgument(
         name='urdf_path',
         default_value=str(default_urdf_path),
-        description='Absolute path to apriltag .xacro')
+        description='Absolute path to apriltag .xacro',
+    )
     launch_description.add_action(action)
     action = DeclareLaunchArgument(
         name='tag_poses_file',
         default_value=str(default_tag_poses_file),
-        description=('Path to the file containing the tag poses of the tags'
-                     ' to be spawned.'))
+        description=(
+            'Path to the file containing the tag poses of the tags'
+            ' to be spawned.'
+        ),
+    )
     launch_description.add_action(action)
 
 

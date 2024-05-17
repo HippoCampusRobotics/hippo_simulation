@@ -11,9 +11,11 @@ from launch_ros.actions import Node
 
 
 def declare_launch_args(launch_description: LaunchDescription) -> None:
-    action = DeclareLaunchArgument(name='start_gui',
-                                   default_value='false',
-                                   description='Start the gazebo GUI.')
+    action = DeclareLaunchArgument(
+        name='start_gui',
+        default_value='false',
+        description='Start the gazebo GUI.',
+    )
     launch_description.add_action(action)
 
     package_path = get_package_share_path('hippo_sim')
@@ -39,11 +41,12 @@ def create_gazebo_action() -> ExecuteProcess:
 
 
 def create_gazebo_gui_action() -> ExecuteProcess:
-    return ExecuteProcess(cmd=['ign', 'gazebo', '-g', '-v 1'],
-                          condition=IfCondition(
-                              LaunchConfiguration('start_gui')),
-                          output='log',
-                          on_exit=Shutdown())
+    return ExecuteProcess(
+        cmd=['ign', 'gazebo', '-g', '-v 1'],
+        condition=IfCondition(LaunchConfiguration('start_gui')),
+        output='log',
+        on_exit=Shutdown(),
+    )
 
 
 def create_spawn_pool_action() -> Node:
@@ -51,36 +54,43 @@ def create_spawn_pool_action() -> Node:
     pool_path = package_path / 'models/pool/urdf/pool.xacro'
     pool_description = LaunchConfiguration(
         'pool_description',
-        default=Command([
-            'ros2 run hippo_sim create_robot_description.py ',
-            '--input ',
-            str(pool_path),
-        ]))
+        default=Command(
+            [
+                'ros2 run hippo_sim create_robot_description.py ',
+                '--input ',
+                str(pool_path),
+            ]
+        ),
+    )
     pool_params = {'pool_description': pool_description}
-    return Node(package='hippo_sim',
-                executable='spawn',
-                parameters=[pool_params],
-                arguments=[
-                    '--param',
-                    'pool_description',
-                    '--x',
-                    '1.0',
-                    '--y',
-                    '2.0',
-                    '--z',
-                    '-1.5',
-                ],
-                output='screen')
+    return Node(
+        package='hippo_sim',
+        executable='spawn',
+        parameters=[pool_params],
+        arguments=[
+            '--param',
+            'pool_description',
+            '--x',
+            '1.0',
+            '--y',
+            '2.0',
+            '--z',
+            '-1.5',
+        ],
+        output='screen',
+    )
 
 
 def create_clock_bridge_action() -> Node:
-    return Node(name='clock_bridge',
-                package='ros_gz_bridge',
-                executable='parameter_bridge',
-                arguments=[
-                    '/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock',
-                ],
-                output='screen')
+    return Node(
+        name='clock_bridge',
+        package='ros_gz_bridge',
+        executable='parameter_bridge',
+        arguments=[
+            '/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock',
+        ],
+        output='screen',
+    )
 
 
 def generate_launch_description():

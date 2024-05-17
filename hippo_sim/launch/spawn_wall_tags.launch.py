@@ -47,36 +47,44 @@ def generate_launch_description() -> LaunchDescription:
         mappings = ' '.join(mappings)
         description = LaunchConfiguration(
             f'description_{i}',
-            default=Command([
-                'ros2 run hippo_sim create_robot_description.py ',
-                '--input ',
-                apriltag_path,
-                ' --mappings ',
-                mappings,
-            ]))
+            default=Command(
+                [
+                    'ros2 run hippo_sim create_robot_description.py ',
+                    '--input ',
+                    apriltag_path,
+                    ' --mappings ',
+                    mappings,
+                ]
+            ),
+        )
         nodes.append(
-            Node(package='hippo_sim',
-                 executable='spawn',
-                 parameters=[{
-                     'robot_description': description,
-                 }],
-                 arguments=[
-                     '--param',
-                     'robot_description',
-                     '--name',
-                     f'range_tag_{p["tag_id"]:02d}',
-                     '--x',
-                     f'{p["xyz"][0]}',
-                     '--y',
-                     f'{p["xyz"][1]}',
-                     '--z',
-                     f'{p["xyz"][2]}',
-                     '--R',
-                     f'{p["rpy"][0]}',
-                     '--P',
-                     f'{p["rpy"][1]}',
-                     '--Y',
-                     f'{p["rpy"][2]}',
-                 ],
-                 output='screen'))
+            Node(
+                package='hippo_sim',
+                executable='spawn',
+                parameters=[
+                    {
+                        'robot_description': description,
+                    }
+                ],
+                arguments=[
+                    '--param',
+                    'robot_description',
+                    '--name',
+                    f'range_tag_{p["tag_id"]:02d}',
+                    '--x',
+                    f'{p["xyz"][0]}',
+                    '--y',
+                    f'{p["xyz"][1]}',
+                    '--z',
+                    f'{p["xyz"][2]}',
+                    '--R',
+                    f'{p["rpy"][0]}',
+                    '--P',
+                    f'{p["rpy"][1]}',
+                    '--Y',
+                    f'{p["rpy"][2]}',
+                ],
+                output='screen',
+            )
+        )
     return LaunchDescription(nodes)

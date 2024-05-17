@@ -20,7 +20,8 @@ def main():
     parser.add_argument(
         '--mappings',
         nargs='+',
-        help='space separated list of mappings in the form of arg_name=value')
+        help='space separated list of mappings in the form of arg_name=value',
+    )
     parser.add_argument('--input', required=True)
     args = parser.parse_args()
     mappings = parse_mappings(args.mappings)

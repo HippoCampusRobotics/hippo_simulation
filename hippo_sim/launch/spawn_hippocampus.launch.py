@@ -8,7 +8,8 @@ from launch.substitutions import LaunchConfiguration
 
 def declare_args(launch_description: LaunchDescription) -> None:
     launch_helper.declare_vehicle_name_and_sim_time(
-        launch_description=launch_description, use_sim_time_default='true')
+        launch_description=launch_description, use_sim_time_default='true'
+    )
     action = DeclareLaunchArgument('vehicle_name')
     launch_description.add_action(action)
     action = DeclareLaunchArgument('use_sim_time')
@@ -32,7 +33,8 @@ def generate_launch_description() -> LaunchDescription:
         vehicle_name=LaunchConfiguration('vehicle_name'),
         camera_name='vertical_camera',
         use_camera=LaunchConfiguration('use_vertical_camera'),
-        image_name='image_rect')
+        image_name='image_rect',
+    )
     launch_description.add_action(action)
 
     ############################################################################

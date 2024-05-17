@@ -11,14 +11,16 @@ from launch.substitutions import LaunchConfiguration
 
 
 def declare_args(launch_description: LaunchDescription) -> None:
-    declare_vehicle_name_and_sim_time(launch_description=launch_description,
-                                      use_sim_time_default='true')
+    declare_vehicle_name_and_sim_time(
+        launch_description=launch_description, use_sim_time_default='true'
+    )
     action = DeclareLaunchArgument(
         'spawn_apriltags',
         default_value='false',
         description='Decides if AprilTags should be spawned. Recommended to be '
         'false to reduce start up time, unless required for testing visual '
-        'algorithms.')
+        'algorithms.',
+    )
     launch_description.add_action(action)
 
 

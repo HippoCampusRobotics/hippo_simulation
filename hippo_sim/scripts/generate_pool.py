@@ -153,9 +153,9 @@ def main():
         subprocess.Popen(['rm', *files]).wait()
 
     base_sdf, base_model = create_base_model()
-    urdf = generate_urdfs(xacro_path=xacro_path,
-                          tag_poses=tag_poses,
-                          output_dir=cache_dir)
+    urdf = generate_urdfs(
+        xacro_path=xacro_path, tag_poses=tag_poses, output_dir=cache_dir
+    )
     if not args.force and not need_to_rebuild(old_urdf, urdf, cache_sdf):
         with open(cache_sdf) as f:
             sys.stdout.write(f.read())

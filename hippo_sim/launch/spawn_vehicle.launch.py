@@ -21,97 +21,121 @@ def generate_launch_description() -> LaunchDescription:
     model_launch_arg = DeclareLaunchArgument(
         name='model_path',
         default_value=str(default_model_path),
-        description='Absolute model path')
+        description='Absolute model path',
+    )
     vehicle_name_launch_arg = DeclareLaunchArgument(
         name='vehicle_name',
         default_value=default_vehicle_name,
-        description='Vehicle name used as namespace.')
+        description='Vehicle name used as namespace.',
+    )
     fake_estimator_launch_arg = DeclareLaunchArgument(
-        name='fake_state_estimation', default_value='true')
-    fake_vision_launch_arg = DeclareLaunchArgument(name='fake_vision',
-                                                   default_value='true')
+        name='fake_state_estimation', default_value='true'
+    )
+    fake_vision_launch_arg = DeclareLaunchArgument(
+        name='fake_vision', default_value='true'
+    )
 
     robot_description = LaunchConfiguration(
         'robot_description',
-        default=Command([
-            'ros2 run hippo_sim create_robot_description.py ',
-            '--input ',
-            LaunchConfiguration('model_path'),
-            ' --mappings vehicle_name=',
-            LaunchConfiguration('vehicle_name'),
-            ' use_vertical_camera=',
-            LaunchConfiguration('use_vertical_camera', default=False),
-            ' use_front_camera=',
-            LaunchConfiguration('use_front_camera', default=False),
-            ' use_range_sensor=',
-            LaunchConfiguration('use_range_sensor', default=False),
-            ' use_acoustic_modem=',
-            LaunchConfiguration('use_acoustic_modem', default=False),
-        ]))
+        default=Command(
+            [
+                'ros2 run hippo_sim create_robot_description.py ',
+                '--input ',
+                LaunchConfiguration('model_path'),
+                ' --mappings vehicle_name=',
+                LaunchConfiguration('vehicle_name'),
+                ' use_vertical_camera=',
+                LaunchConfiguration('use_vertical_camera', default=False),
+                ' use_front_camera=',
+                LaunchConfiguration('use_front_camera', default=False),
+                ' use_range_sensor=',
+                LaunchConfiguration('use_range_sensor', default=False),
+                ' use_acoustic_modem=',
+                LaunchConfiguration('use_acoustic_modem', default=False),
+            ]
+        ),
+    )
 
     description = {'robot_description': robot_description}
 
-    vehicle_group = GroupAction(actions=[
-        PushRosNamespace(vehicle_name),
-        Node(package='hippo_sim',
-             executable='spawn',
-             parameters=[description],
-             arguments=[
-                 '--param',
-                 'robot_description',
-                 '--remove_on_exit',
-                 'true',
-                 '--x',
-                 '1.3',
-                 '--y',
-                 '1.0',
-                 '--z',
-                 '-0.5',
-                 '--Y',
-                 '1.5708',
-             ],
-             output='screen'),
-        Node(package='hippo_sim',
-             executable='bridge',
-             parameters=[{
-                 'use_sim_time': use_sim_time,
-             }],
-             output='screen'),
-        Node(package='hippo_sim',
-             executable='fake_state_estimator',
-             name='state_estimator',
-             parameters=[
-                 {
-                     'use_sim_time': use_sim_time,
-                 },
-             ],
-             output='screen',
-             condition=IfCondition(LaunchConfiguration(
-                 'fake_state_estimation'))),
-        Node(package='hippo_sim',
-             executable='fake_vision',
-             name='vision',
-             parameters=[
-                 {
-                     'use_sim_time': use_sim_time,
-                 },
-             ],
-             condition=IfCondition(LaunchConfiguration('fake_vision'))),
-        Node(package='state_estimation',
-             executable='estimator',
-             name='state_estimator',
-             parameters=[
-                 {
-                     'use_sim_time': use_sim_time,
-                 },
-             ],
-             condition=UnlessCondition(
-                 LaunchConfiguration('fake_state_estimation'))),
-    ])
+    vehicle_group = GroupAction(
+        actions=[
+            PushRosNamespace(vehicle_name),
+            Node(
+                package='hippo_sim',
+                executable='spawn',
+                parameters=[description],
+                arguments=[
+                    '--param',
+                    'robot_description',
+                    '--remove_on_exit',
+                    'true',
+                    '--x',
+                    '1.3',
+                    '--y',
+                    '1.0',
+                    '--z',
+                    '-0.5',
+                    '--Y',
+                    '1.5708',
+                ],
+                output='screen',
+            ),
+            Node(
+                package='hippo_sim',
+                executable='bridge',
+                parameters=[
+                    {
+                        'use_sim_time': use_sim_time,
+                    }
+                ],
+                output='screen',
+            ),
+            Node(
+                package='hippo_sim',
+                executable='fake_state_estimator',
+                name='state_estimator',
+                parameters=[
+                    {
+                        'use_sim_time': use_sim_time,
+                    },
+                ],
+                output='screen',
+                condition=IfCondition(
+                    LaunchConfiguration('fake_state_estimation')
+                ),
+            ),
+            Node(
+                package='hippo_sim',
+                executable='fake_vision',
+                name='vision',
+                parameters=[
+                    {
+                        'use_sim_time': use_sim_time,
+                    },
+                ],
+                condition=IfCondition(LaunchConfiguration('fake_vision')),
+            ),
+            Node(
+                package='state_estimation',
+                executable='estimator',
+                name='state_estimator',
+                parameters=[
+                    {
+                        'use_sim_time': use_sim_time,
+                    },
+                ],
+                condition=UnlessCondition(
+                    LaunchConfiguration('fake_state_estimation')
+                ),
+            ),
+        ]
+    )
 
     launch_path = str(
-        get_package_share_path('hippo_common') /
-        'launch/tf_publisher_hippo.launch.py')
+        get_package_share_path('hippo_common')
+        / 'launch/tf_publisher_hippo.launch.py'
+    )
     launch_source = PythonLaunchDescriptionSource(launch_path)
     tf_publisher_vehicle = IncludeLaunchDescription(
         launch_source,
@@ -121,11 +145,13 @@ def generate_launch_description() -> LaunchDescription:
         }.items(),
     )
 
-    return LaunchDescription([
-        model_launch_arg,
-        vehicle_name_launch_arg,
-        fake_estimator_launch_arg,
-        fake_vision_launch_arg,
-        tf_publisher_vehicle,
-        vehicle_group,
-    ])
+    return LaunchDescription(
+        [
+            model_launch_arg,
+            vehicle_name_launch_arg,
+            fake_estimator_launch_arg,
+            fake_vision_launch_arg,
+            tf_publisher_vehicle,
+            vehicle_group,
+        ]
+    )
