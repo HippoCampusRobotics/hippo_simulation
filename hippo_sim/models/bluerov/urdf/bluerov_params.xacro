@@ -34,6 +34,6 @@
     <xacro:arg name="use_acoustic_modem" default="false"/>
     <xacro:property name="modem_position" value="0 0 -0.3" />
     <xacro:property name="modem_orientation" value="0 0 0" />
-    
+
     <xacro:property name="thruster_r" value="0.097" />
 </robot>

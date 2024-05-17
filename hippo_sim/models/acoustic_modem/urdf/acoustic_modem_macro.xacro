@@ -41,7 +41,7 @@
                     <link>${link}</link>
                     <update_rate>300.0</update_rate>  <!-- higher rate than acoustics simulation necessary -->
                     <base_topic>ground_truth/modem/odometry</base_topic>
-                </plugin>    
+                </plugin>
             </xacro:if>
         </gazebo>
 

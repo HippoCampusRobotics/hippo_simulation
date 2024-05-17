@@ -121,12 +121,12 @@
     <xacro:mount parent="base_link" suffix="port_bot" xyz="0 ${thruster_r / 2**0.5} -${thruster_r / 2**0.5}" rpy="${radians(-135)} 0 0" />
 
     <xacro:if value="$(arg use_vertical_camera)">
-        <xacro:camera_macro parent="base_link" 
-            prefix="vertical_camera" topic_prefix="$(arg vehicle_name)/vertical_camera" 
-            ignition_frame_id="$(arg vehicle_name)::vertical_camera" 
+        <xacro:camera_macro parent="base_link"
+            prefix="vertical_camera" topic_prefix="$(arg vehicle_name)/vertical_camera"
+            ignition_frame_id="$(arg vehicle_name)::vertical_camera"
             xyz="${vertical_camera_position}" rpy="${vertical_camera_orientation}" />
     </xacro:if>
-    
+
     <xacro:if value="$(arg use_acoustic_modem)">
         <xacro:acoustic_modem_macro parent="base_link"
             prefix="modem" xyz="${modem_position}"

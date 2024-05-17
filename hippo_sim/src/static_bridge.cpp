@@ -83,9 +83,9 @@ class Bridge {
     gz_node_->Subscribe(topic_name, &Bridge::OnOdometry, this);
 
     topic_name = node_topics->resolve_topic_name("ground_truth/modem/odometry");
-    odometry_modem_pub_ = ros_node_->create_publisher<Odometry>(topic_name, qos);
+    odometry_modem_pub_ =
+        ros_node_->create_publisher<Odometry>(topic_name, qos);
     gz_node_->Subscribe(topic_name, &Bridge::OnModemOdometry, this);
-    
   }
 
   void CreateImuBridge() {
