@@ -5,155 +5,401 @@
 <!-- =================================================================================== -->
 <robot name="hippocampus">
   <link name="world"/>
+  <link name="end_effector_base_link">
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="1e-5" ixy="0.0" ixz="0.0" iyy="1e-5" iyz="0.0" izz="1e-5"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 1.5707963267948966 0"/>
+      <geometry>
+        <mesh filename="file:///home/ros-user/uuv/ros2/install/hippo_sim/share/hippo_sim/models/gripper/meshes/base.stl"/>
+      </geometry>
+    </visual>
+  </link>
   <joint name="attachment" type="fixed">
     <parent link="world"/>
-    <child link="base_link"/>
+    <child link="end_effector_base_link"/>
   </joint>
-  <link name="base_link">
+  <link name="end_effector_prismatic_link">
     <inertial>
       <mass value="0.1"/>
       <inertia ixx="1e-5" ixy="0.0" ixz="0.0" iyy="1e-5" iyz="0.0" izz="1e-5"/>
     </inertial>
     <visual>
       <geometry>
-        <sphere radius="0.05"/>
+        <cylinder length="0.02" radius="0.0025"/>
       </geometry>
     </visual>
   </link>
-  <!--
-    <joint name="left_fixed_joint" type="fixed">
-        <parent link="base_link" />
-        <origin xyz="1 1 0" rpy="0 0 0" />
-        <child link="left_rotation_link" />
-    </joint>
-    -->
-  <link name="prismatic_link">
-    <inertial>
-      <mass value="0.1"/>
-      <inertia ixx="1e-5" ixy="0.0" ixz="0.0" iyy="1e-5" iyz="0.0" izz="1e-5"/>
-    </inertial>
-    <visual>
-      <origin rpy="0 1.57 0" xyz="0 0 0"/>
-      <geometry>
-        <cylinder length="0.1" radius="0.05"/>
-      </geometry>
-    </visual>
-  </link>
-  <joint name="prismatic_joint" type="prismatic">
-    <parent link="base_link"/>
-    <child link="prismatic_link"/>
+  <joint name="joint_5" type="prismatic">
+    <parent link="end_effector_base_link"/>
+    <origin xyz="6.9e-3 0 0"/>
+    <child link="end_effector_prismatic_link"/>
+    <limit effort="28.992" lower="0.0" upper="0.012" velocity="2.0"/>
     <axis xyz="1 0 0"/>
-    <limit effort="100" lower="-1.0" upper=" 1.0" velocity="1.0"/>
-    <origin xyz="1 0 0"/>
   </joint>
-  <link name="left_prismatic_revolute_link">
+  <gazebo reference="end_effector_base_link">
+    <visual>
+      <material>
+        <ambient>1 1 1 1</ambient>
+        <diffuse>1 1 1 1</diffuse>
+        <specular>1 1 1 1</specular>
+        <pbr>
+          <metal>
+            <metalness>1</metalness>
+            <roughness>0.5</roughness>
+            <environment_map>/home/ros-user/uuv/ros2/install/hippo_sim/share/hippo_sim/models/common/textures/env_map.dds</environment_map>
+            <albedo_map>/home/ros-user/uuv/ros2/install/hippo_sim/share/hippo_sim/models/common/textures/blue.png</albedo_map>
+          </metal>
+        </pbr>
+      </material>
+    </visual>
+  </gazebo>
+  <link name="end_effector_left_inner_revolute_link">
     <inertial>
       <mass value="0.1"/>
       <inertia ixx="1e-5" ixy="0.0" ixz="0.0" iyy="1e-5" iyz="0.0" izz="1e-5"/>
     </inertial>
     <visual>
-      <origin rpy="1.57 0 0" xyz="0 0.5 0"/>
       <geometry>
-        <cylinder length="0.3" radius="0.02"/>
+        <cylinder length="0.005" radius="0.01"/>
       </geometry>
     </visual>
   </link>
-  <joint name="left_prismatic_revolute_joint" type="continuous">
-    <parent link="prismatic_link"/>
-    <child link="left_prismatic_revolute_link"/>
+  <joint name="end_effector_left_inner_revolute_joint" type="continuous">
+    <parent link="end_effector_prismatic_link"/>
+    <child link="end_effector_left_inner_revolute_link"/>
     <axis xyz="0 0 1"/>
-    <dynamics damping="1.0" friction="0.0"/>
-  </joint>
-  <link name="left_jaw">
-    <inertial>
-      <mass value="0.1"/>
-      <inertia ixx="1e-5" ixy="0.0" ixz="0.0" iyy="1e-5" iyz="0.0" izz="1e-5"/>
-    </inertial>
-    <visual>
-      <origin rpy="0 1.57 0" xyz="0.4 0 0"/>
-      <geometry>
-        <cylinder length="0.8" radius="0.01"/>
-      </geometry>
-    </visual>
-  </link>
-  <joint name="left_jaw_joint" type="fixed">
-    <parent link="left_rotation_dummy_link"/>
-    <child link="left_jaw"/>
-    <origin xyz="0 0 0"/>
-  </joint>
-  <link name="left_prismatic_link">
-    <inertial>
-      <mass value="0.1"/>
-      <inertia ixx="1e-5" ixy="0.0" ixz="0.0" iyy="1e-5" iyz="0.0" izz="1e-5"/>
-    </inertial>
-    <visual>
-      <origin rpy="-1.57 0 0" xyz="0 0 0"/>
-      <geometry>
-        <cylinder length="0.1" radius="0.05"/>
-      </geometry>
-    </visual>
-  </link>
-  <joint name="left_prismatic_joint" type="prismatic">
-    <parent link="left_prismatic_revolute_link"/>
-    <child link="left_prismatic_link"/>
-    <axis xyz="0 1 0"/>
-    <limit effort="100" lower="-1.0" upper="1.0" velocity="1.0"/>
-    <origin xyz="0 0.5 0"/>
-  </joint>
-  <link name="left_rotation_link">
-    <origin xyz="0 0 0"/>
-    <inertial>
-      <mass value="0.1"/>
-      <inertia ixx="1e-5" ixy="0.0" ixz="0.0" iyy="1e-5" iyz="0.0" izz="1e-5"/>
-    </inertial>
-    <visual>
-      <geometry>
-        <box size="0.1 0.1 0.1"/>
-      </geometry>
-    </visual>
-  </link>
-  <joint name="left_revolute_joint" type="continuous">
-    <parent link="left_rotation_dummy_link"/>
-    <child link="left_rotation_link"/>
-    <axis xyz="0 0 1"/>
-    <origin xyz="0 0 0"/>
     <dynamics damping="0.6" friction="0.0"/>
   </joint>
-  <link name="left_rotation_dummy_link">
-    <origin xyz="0 0 0"/>
+  <link name="end_effector_left_prismatic_link">
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="1e-5" ixy="0.0" ixz="0.0" iyy="1e-5" iyz="0.0" izz="1e-5"/>
+    </inertial>
+  </link>
+  <joint name="end_effector_left_prismatic_joint" type="prismatic">
+    <parent link="end_effector_left_inner_revolute_link"/>
+    <child link="end_effector_left_prismatic_link"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="100" lower="-1.0" upper="1.0" velocity="1.0"/>
+    <origin xyz="0 7.0e-3 0"/>
+  </joint>
+  <link name="end_effector_left_jaw_link">
     <inertial>
       <mass value="0.1"/>
       <inertia ixx="1e-5" ixy="0.0" ixz="0.0" iyy="1e-5" iyz="0.0" izz="1e-5"/>
     </inertial>
     <visual>
       <geometry>
-        <box size="0.01 0.01 0.5"/>
+        <mesh filename="file:///home/ros-user/uuv/ros2/install/hippo_sim/share/hippo_sim/models/gripper/meshes/left_jaw.stl"/>
       </geometry>
     </visual>
   </link>
-  <joint name="dummy_joint" type="fixed">
-    <parent link="left_prismatic_link"/>
-    <child link="left_rotation_dummy_link"/>
-    <origin xyz="0 0.5 0"/>
+  <joint name="end_effector_left_jaw_joint" type="fixed">
+    <parent link="end_effector_left_prismatic_link"/>
+    <origin xyz="0 8.5e-3 0"/>
+    <child link="end_effector_left_jaw_link"/>
+  </joint>
+  <gazebo reference="end_effector_left_jaw_joint">
+    <preserveFixedJoint>true</preserveFixedJoint>
+  </gazebo>
+  <link name="end_effector_left_revolute_link">
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="1e-5" ixy="0.0" ixz="0.0" iyy="1e-5" iyz="0.0" izz="1e-5"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <cylinder length="0.02" radius="0.0025"/>
+      </geometry>
+    </visual>
+  </link>
+  <joint name="end_effector_left_revolute_joint" type="continuous">
+    <parent link="end_effector_left_jaw_link"/>
+    <child link="end_effector_left_revolute_link"/>
     <axis xyz="0 0 1"/>
-    <limit effort="10" lower="0.7853981633974483" upper="0.7853981633974483" velocity="1"/>
+    <dynamics damping="0.6" friction="0.0"/>
   </joint>
   <gazebo>
-    <disableFixedJointLumping>true</disableFixedJointLumping>
     <plugin filename="libgz-sim-detachable-joint-system.so" name="gz::sim::systems::DetachableJoint">
-      <parent_link>left_rotation_link</parent_link>
+      <parent_link>end_effector_left_revolute_link</parent_link>
       <child_model>hippocampus</child_model>
-      <child_link>base_link</child_link>
-    </plugin>
-    <plugin filename="libignition-gazebo-joint-state-publisher-system.so" name="ignition::gazebo::systems::JointStatePublisher"/>
-    <plugin filename="libignition-gazebo-apply-joint-force-system.so" name="ignition::gazebo::systems::ApplyJointForce">
-      <joint_name>prismatic_joint</joint_name>
-    </plugin>
-    <plugin filename="libignition-gazebo-apply-joint-force-system.so" name="ignition::gazebo::systems::ApplyJointForce">
-      <joint_name>left_prismatic_revolute_joint</joint_name>
-    </plugin>
-    <plugin filename="libignition-gazebo-apply-joint-force-system.so" name="ignition::gazebo::systems::ApplyJointForce">
-      <joint_name>left_revolute_joint</joint_name>
+      <child_link>end_effector_base_link</child_link>
     </plugin>
   </gazebo>
+  <gazebo reference="end_effector_left_jaw_link">
+    <visual>
+      <material>
+        <ambient>1 1 1 1</ambient>
+        <diffuse>1 1 1 1</diffuse>
+        <specular>1 1 1 1</specular>
+        <pbr>
+          <metal>
+            <metalness>1</metalness>
+            <roughness>0.5</roughness>
+            <environment_map>/home/ros-user/uuv/ros2/install/hippo_sim/share/hippo_sim/models/common/textures/env_map.dds</environment_map>
+            <albedo_map>/home/ros-user/uuv/ros2/install/hippo_sim/share/hippo_sim/models/common/textures/blue.png</albedo_map>
+          </metal>
+        </pbr>
+      </material>
+    </visual>
+  </gazebo>
+  <link name="end_effector_right_inner_revolute_link">
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="1e-5" ixy="0.0" ixz="0.0" iyy="1e-5" iyz="0.0" izz="1e-5"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <cylinder length="0.005" radius="0.01"/>
+      </geometry>
+    </visual>
+  </link>
+  <joint name="end_effector_right_inner_revolute_joint" type="continuous">
+    <parent link="end_effector_prismatic_link"/>
+    <child link="end_effector_right_inner_revolute_link"/>
+    <axis xyz="0 0 1"/>
+    <dynamics damping="0.6" friction="0.0"/>
+  </joint>
+  <link name="end_effector_right_prismatic_link">
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="1e-5" ixy="0.0" ixz="0.0" iyy="1e-5" iyz="0.0" izz="1e-5"/>
+    </inertial>
+  </link>
+  <joint name="end_effector_right_prismatic_joint" type="prismatic">
+    <parent link="end_effector_right_inner_revolute_link"/>
+    <child link="end_effector_right_prismatic_link"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="100" lower="-1.0" upper="1.0" velocity="1.0"/>
+    <origin xyz="0 -7.0e-3 0"/>
+  </joint>
+  <link name="end_effector_right_jaw_link">
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="1e-5" ixy="0.0" ixz="0.0" iyy="1e-5" iyz="0.0" izz="1e-5"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="file:///home/ros-user/uuv/ros2/install/hippo_sim/share/hippo_sim/models/gripper/meshes/right_jaw.stl"/>
+      </geometry>
+    </visual>
+  </link>
+  <joint name="end_effector_right_jaw_joint" type="fixed">
+    <parent link="end_effector_right_prismatic_link"/>
+    <origin xyz="0 -8.5e-3 0"/>
+    <child link="end_effector_right_jaw_link"/>
+  </joint>
+  <gazebo reference="end_effector_right_jaw_joint">
+    <preserveFixedJoint>true</preserveFixedJoint>
+  </gazebo>
+  <link name="end_effector_right_revolute_link">
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="1e-5" ixy="0.0" ixz="0.0" iyy="1e-5" iyz="0.0" izz="1e-5"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <cylinder length="0.02" radius="0.0025"/>
+      </geometry>
+    </visual>
+  </link>
+  <joint name="end_effector_right_revolute_joint" type="continuous">
+    <parent link="end_effector_right_jaw_link"/>
+    <child link="end_effector_right_revolute_link"/>
+    <axis xyz="0 0 1"/>
+    <dynamics damping="0.6" friction="0.0"/>
+  </joint>
+  <gazebo>
+    <plugin filename="libgz-sim-detachable-joint-system.so" name="gz::sim::systems::DetachableJoint">
+      <parent_link>end_effector_right_revolute_link</parent_link>
+      <child_model>hippocampus</child_model>
+      <child_link>end_effector_base_link</child_link>
+    </plugin>
+  </gazebo>
+  <gazebo reference="end_effector_right_jaw_link">
+    <visual>
+      <material>
+        <ambient>1 1 1 1</ambient>
+        <diffuse>1 1 1 1</diffuse>
+        <specular>1 1 1 1</specular>
+        <pbr>
+          <metal>
+            <metalness>1</metalness>
+            <roughness>0.5</roughness>
+            <environment_map>/home/ros-user/uuv/ros2/install/hippo_sim/share/hippo_sim/models/common/textures/env_map.dds</environment_map>
+            <albedo_map>/home/ros-user/uuv/ros2/install/hippo_sim/share/hippo_sim/models/common/textures/blue.png</albedo_map>
+          </metal>
+        </pbr>
+      </material>
+    </visual>
+  </gazebo>
+  <!--
+        <xacro:jaw is_left="false" parent_fixed_link="${base_link_name}"
+            parent_prismatic_link="${prismatic_link_name}" />
+        -->
+  <gazebo>
+    <disableFixedJointLumping>true</disableFixedJointLumping>
+    <plugin filename="libignition-gazebo-joint-state-publisher-system.so" name="ignition::gazebo::systems::JointStatePublisher"/>
+    <plugin filename="libignition-gazebo-apply-joint-force-system.so" name="ignition::gazebo::systems::ApplyJointForce">
+      <joint_name>joint_5</joint_name>
+    </plugin>
+  </gazebo>
+  <!--
+    <xacro:include filename="$(find hippo_sim)/models/common/urdf/common.xacro" />
+    <xacro:macro name="dummy_inertia">
+        <inertial>
+            <mass value="0.1" />
+            <inertia ixx="1e-5" ixy="0.0" ixz="0.0" iyy="1e-5" iyz="0.0" izz="1e-5" />
+        </inertial>
+    </xacro:macro>
+    <xacro:arg name="vehicle_name" default="this_shoud_be_replaced_by_your_vehicle_name" />
+    <link name="world" />
+    <joint name="attachment" type="fixed">
+        <parent link="world" />
+        <child link="base_link" />
+    </joint>
+
+    <link name="base_link">
+        <xacro:dummy_inertia />
+        <visual>
+            <geometry>
+                <sphere radius="0.05" />
+            </geometry>
+        </visual>
+    </link>
+
+    <link name="prismatic_link">
+        <xacro:dummy_inertia />
+        <visual>
+            <origin xyz="0 0 0" rpy="0 1.57 0" />
+            <geometry>
+                <cylinder radius="0.05" length="0.1" />
+            </geometry>
+        </visual>
+
+    </link>
+
+    <joint name="prismatic_joint" type="prismatic">
+        <parent link="base_link" />
+        <child link="prismatic_link" />
+        <axis xyz="1 0 0" />
+        <limit lower="-1.0" upper=" 1.0" effort="100" velocity="1.0" />
+        <origin xyz="1 0 0" />
+    </joint>
+
+    <link name="left_prismatic_revolute_link">
+        <xacro:dummy_inertia />
+        <visual>
+            <origin xyz="0 0.5 0" rpy="1.57 0 0" />
+            <geometry>
+                <cylinder radius="0.02" length="0.3" />
+            </geometry>
+        </visual>
+    </link>
+
+    <joint name="left_prismatic_revolute_joint" type="continuous">
+        <parent link="prismatic_link" />
+        <child link="left_prismatic_revolute_link" />
+        <axis xyz="0 0 1" />
+        <dynamics damping="1.0" friction="0.0" />
+    </joint>
+    <link name="left_jaw">
+        <xacro:dummy_inertia />
+        <visual>
+            <origin xyz="0.4 0 0" rpy="0 1.57 0" />
+            <geometry>
+                <cylinder radius="0.01" length="0.8" />
+            </geometry>
+        </visual>
+    </link>
+    <joint name="left_jaw_joint" type="fixed">
+        <parent link="left_rotation_dummy_link" />
+        <child link="left_jaw" />
+        <origin xyz="0 0 0" />
+    </joint>
+
+    <link name="left_prismatic_link">
+        <xacro:dummy_inertia />
+        <visual>
+            <origin xyz="0 0 0" rpy="-1.57 0 0" />
+            <geometry>
+                <cylinder radius="0.05" length="0.1" />
+            </geometry>
+        </visual>
+
+    </link>
+
+    <joint name="left_prismatic_joint" type="prismatic">
+        <parent link="left_prismatic_revolute_link" />
+        <child link="left_prismatic_link" />
+        <axis xyz="0 1 0" />
+        <limit lower="-1.0" upper="1.0" effort="100" velocity="1.0" />
+        <origin xyz="0 0.5 0" />
+    </joint>
+
+
+    <link name="left_rotation_link">
+        <origin xyz="0 0 0" />
+        <xacro:dummy_inertia />
+        <visual>
+            <geometry>
+                <box size="0.1 0.1 0.1" />
+            </geometry>
+        </visual>
+    </link>
+
+    <joint name="left_revolute_joint" type="continuous">
+        <parent link="left_rotation_dummy_link" />
+        <child link="left_rotation_link" />
+        <axis xyz="0 0 1" />
+        <origin xyz="0 0 0" />
+        <dynamics damping="0.6" friction="0.0" />
+    </joint>
+
+    <link name="left_rotation_dummy_link">
+        <origin xyz="0 0 0" />
+        <xacro:dummy_inertia />
+        <visual>
+            <geometry>
+                <box size="0.01 0.01 0.5" />
+            </geometry>
+        </visual>
+    </link>
+    <joint name="dummy_joint" type="fixed">
+        <parent link="left_prismatic_link" />
+        <child link="left_rotation_dummy_link" />
+        <origin xyz="0 0.5 0" />
+        <axis xyz="0 0 1" />
+        <limit lower="0.7853981633974483" upper="0.7853981633974483" effort="10" velocity="1" />
+    </joint>
+
+    <gazebo>
+        <disableFixedJointLumping>true</disableFixedJointLumping>
+        <plugin filename="libgz-sim-detachable-joint-system.so"
+            name="gz::sim::systems::DetachableJoint">
+            <parent_link>left_rotation_link</parent_link>
+            <child_model>hippocampus</child_model>
+            <child_link>base_link</child_link>
+        </plugin>
+        <plugin filename="libignition-gazebo-joint-state-publisher-system.so"
+            name="ignition::gazebo::systems::JointStatePublisher" />
+
+        <plugin filename="libignition-gazebo-apply-joint-force-system.so"
+            name="ignition::gazebo::systems::ApplyJointForce">
+            <joint_name>prismatic_joint</joint_name>
+        </plugin>
+
+        <plugin filename="libignition-gazebo-apply-joint-force-system.so"
+            name="ignition::gazebo::systems::ApplyJointForce">
+            <joint_name>left_prismatic_revolute_joint</joint_name>
+        </plugin>
+        <plugin filename="libignition-gazebo-apply-joint-force-system.so"
+            name="ignition::gazebo::systems::ApplyJointForce">
+            <joint_name>left_revolute_joint</joint_name>
+        </plugin>
+    </gazebo>
+    -->
 </robot>

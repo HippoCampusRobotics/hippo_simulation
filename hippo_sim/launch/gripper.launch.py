@@ -31,7 +31,7 @@ def launch_setup():
     )
     print('hello 2.5')
     joints = [
-        'prismatic_joint',
+        'joint_5',
         'left_prismatic_revolute_joint',
         'left_revolute_joint',
     ]
@@ -48,7 +48,9 @@ def launch_setup():
         )
 
     sl.create_gz_bridge(bridges)
-    sl.node('slider_publisher', arguments=[sl.find('hippo_sim', 'test.yaml')])
+    sl.node(
+        'slider_publisher', arguments=[sl.find('hippo_sim', 'gripper.yaml')]
+    )
     return sl.launch_description()
 
 

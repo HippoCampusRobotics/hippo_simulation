@@ -1,0 +1,209 @@
+<?xml version="1.0"?>
+<robot name="alpha_standard_jaws" xmlns:xacro="http://ros.org/wiki/xacro">
+    <xacro:macro name="end_effector" params="prefix parent">
+
+        <xacro:property name="prismatic_joint_position" value="6.9e-3 0 0" />
+        <xacro:property name="prismatic_joint_limit" value="0.012" />
+        <xacro:property name="prismatic_link_name" value="${prefix}_prismatic_link" />
+        <xacro:property name="base_link_name" value="${prefix}_base_link" />
+
+        <xacro:macro name="jaw" params="side parent_fixed_link parent_prismatic_link">
+            <xacro:if value="${side == 'left'}">
+                <xacro:property name="jaw_position" value="0 8.5e-3 0" />
+                <xacro:property name="prismatic_joint_position" value="0 7.0e-3 0" />
+            </xacro:if>
+            <xacro:if value="${side == 'right'}">
+                <xacro:property name="jaw_position" value="0 -8.5e-3 0" />
+                <xacro:property name="prismatic_joint_position" value="0 -7.0e-3 0" />
+            </xacro:if>
+
+            <xacro:property name="inner_rev_joint_name"
+                value="${prefix}_${side}_inner_revolute_joint" />
+            <xacro:property name="inner_rev_link_name" value="${prefix}_${side}_inner_revolute_link" />
+            <xacro:property name="prismatic_link_name" value="${prefix}_${side}_prismatic_link" />
+            <xacro:property name="prismatic_joint_name" value="${prefix}_${side}_prismatic_joint" />
+            <xacro:property name="rev_joint_name" value="${prefix}_${side}_revolute_joint" />
+            <xacro:property name="rev_link_name" value="${prefix}_${side}_revolute_link" />
+            <xacro:property name="jaw_link_name" value="${prefix}_${side}_jaw_link" />
+            <xacro:property name="jaw_joint_name" value="${prefix}_${side}_jaw_joint" />
+
+            <link name="${inner_rev_link_name}">
+                <xacro:dummy_inertia />
+                <visual>
+                    <geometry>
+                        <cylinder radius="0.01" length="0.005" />
+                    </geometry>
+                </visual>
+            </link>
+
+            <joint name="${inner_rev_joint_name}" type="continuous">
+                <parent link="${parent_prismatic_link}" />
+                <child link="${inner_rev_link_name}" />
+                <axis xyz="0 0 1" />
+                <dynamics damping="0.6" friction="0.0" />
+            </joint>
+
+            <link name="${prismatic_link_name}">
+                <xacro:dummy_inertia />
+            </link>
+
+            <joint name="${prismatic_joint_name}" type="prismatic">
+                <parent link="${inner_rev_link_name}" />
+                <child link="${prismatic_link_name}" />
+                <axis xyz="0 1 0" />
+                <limit lower="-1.0" upper="1.0" effort="100" velocity="1.0" />
+                <origin xyz="${prismatic_joint_position}" />
+            </joint>
+
+
+            <link name="${jaw_link_name}">
+                <xacro:dummy_inertia />
+                <visual>
+                    <geometry>
+                        <mesh
+                            filename="file://$(find hippo_sim)/models/gripper/meshes/${side}_jaw.stl" />
+                    </geometry>
+                </visual>
+            </link>
+
+            <joint name="${jaw_joint_name}" type="fixed">
+                <parent link="${prismatic_link_name}" />
+                <origin xyz="${jaw_position}" />
+                <child link="${jaw_link_name}" />
+            </joint>
+            <gazebo reference="${jaw_joint_name}">
+                <preserveFixedJoint>true</preserveFixedJoint>
+            </gazebo>
+
+            <link name="${rev_link_name}">
+                <xacro:dummy_inertia />
+                <visual>
+                    <geometry>
+                        <cylinder radius="0.0025" length="0.02" />
+                    </geometry>
+                </visual>
+            </link>
+
+            <joint name="${rev_joint_name}" type="continuous">
+                <parent link="${jaw_link_name}" />
+                <child link="${rev_link_name}" />
+                <axis xyz="0 0 1" />
+                <dynamics damping="0.6" friction="0.0" />
+            </joint>
+            <gazebo>
+                <plugin filename="libgz-sim-detachable-joint-system.so"
+                    name="gz::sim::systems::DetachableJoint">
+                    <parent_link>${rev_link_name}</parent_link>
+                    <child_model>hippocampus</child_model>
+                    <child_link>${parent_fixed_link}</child_link>
+                </plugin>
+            </gazebo>
+            <xacro:property name="jaw_textures" value="$(find hippo_sim)/models/common/textures" />
+            <gazebo reference="${jaw_link_name}">
+                <visual>
+                    <material>
+
+                        <ambient>1 1 1 1</ambient>
+                        <diffuse>1 1 1 1</diffuse>
+                        <specular>1 1 1 1</specular>
+                        <pbr>
+                            <metal>
+                                <metalness>1</metalness>
+                                <roughness>0.5</roughness>
+                                <environment_map>${jaw_textures}/env_map.dds</environment_map>
+                                <albedo_map>${jaw_textures}/blue.png</albedo_map>
+                            </metal>
+                        </pbr>
+                    </material>
+                </visual>
+            </gazebo>
+
+        </xacro:macro>
+        <xacro:property name="prismatic_joint_name" value="joint_5" />
+        <xacro:property name="left_inner_rev_joint_name" value="${prefix}_left_inner_revolute_joint" />
+        <xacro:property name="left_inner_rev_link_name" value="${prefix}_left_inner_revolute_link" />
+        <xacro:property name="left_prismatic_link_name" value="${prefix}_left_prismatic_link" />
+        <xacro:property name="left_prismatic_joint_name" value="${prefix}_left_prismatic_joint" />
+        <xacro:property name="left_rev_joint_name" value="${prefix}_left_revolute_joint" />
+        <xacro:property name="left_rev_link_name" value="${prefix}_left_revolute_link" />
+
+
+        <xacro:macro name="dummy_inertia">
+            <inertial>
+                <mass value="0.1" />
+                <inertia ixx="1e-5" ixy="0.0" ixz="0.0" iyy="1e-5" iyz="0.0" izz="1e-5" />
+            </inertial>
+        </xacro:macro>
+
+        <link name="${base_link_name}">
+            <xacro:dummy_inertia />
+            <visual>
+                <origin rpy="0 ${pi / 2.0} 0" />
+                <geometry>
+                    <mesh filename="file://$(find hippo_sim)/models/gripper/meshes/base.stl" />
+                </geometry>
+            </visual>
+        </link>
+
+        <joint name="attachment" type="fixed">
+            <parent link="${parent}" />
+            <child link="${base_link_name}" />
+        </joint>
+
+        <link name="${prismatic_link_name}">
+            <xacro:dummy_inertia />
+            <visual>
+                <geometry>
+                    <cylinder radius="0.0025" length="0.02" />
+                </geometry>
+            </visual>
+        </link>
+
+        <joint name="${prismatic_joint_name}" type="prismatic">
+            <parent link="${base_link_name}" />
+            <origin xyz="${prismatic_joint_position}" />
+            <child link="${prismatic_link_name}" />
+            <limit lower="0.0" upper="${prismatic_joint_limit}" effort="28.992" velocity="2.0" />
+            <axis xyz="1 0 0" />
+        </joint>
+
+
+        <gazebo reference="${prefix}_base_link">
+            <visual>
+                <material>
+
+                    <ambient>1 1 1 1</ambient>
+                    <diffuse>1 1 1 1</diffuse>
+                    <specular>1 1 1 1</specular>
+                    <pbr>
+                        <metal>
+                            <metalness>1</metalness>
+                            <roughness>0.5</roughness>
+                            <environment_map>$(find hippo_sim)/models/common/textures/env_map.dds</environment_map>
+                            <albedo_map>$(find hippo_sim)/models/common/textures/blue.png</albedo_map>
+                        </metal>
+                    </pbr>
+                </material>
+            </visual>
+        </gazebo>
+        <xacro:jaw side="left" parent_fixed_link="${base_link_name}"
+            parent_prismatic_link="${prismatic_link_name}" />
+        <xacro:jaw side="right" parent_fixed_link="${base_link_name}"
+            parent_prismatic_link="${prismatic_link_name}" />
+        <!--
+        <xacro:jaw is_left="false" parent_fixed_link="${base_link_name}"
+            parent_prismatic_link="${prismatic_link_name}" />
+        -->
+        <gazebo>
+            <disableFixedJointLumping>true</disableFixedJointLumping>
+            <plugin filename="libignition-gazebo-joint-state-publisher-system.so"
+                name="ignition::gazebo::systems::JointStatePublisher" />
+            <plugin filename="libignition-gazebo-apply-joint-force-system.so"
+                name="ignition::gazebo::systems::ApplyJointForce">
+                <joint_name>${prismatic_joint_name}</joint_name>
+            </plugin>
+        </gazebo>
+
+
+    </xacro:macro>
+</robot>

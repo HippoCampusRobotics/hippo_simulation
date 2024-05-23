@@ -1,5 +1,11 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="hippocampus">
+    <xacro:include filename="$(find hippo_sim)/models/gripper/urdf/alpha_end_effector.xacro" />
+
+    <link name="world" />
+    <xacro:end_effector prefix="end_effector" parent="world" />
+
+    <!--
     <xacro:include filename="$(find hippo_sim)/models/common/urdf/common.xacro" />
     <xacro:macro name="dummy_inertia">
         <inertial>
@@ -22,13 +28,6 @@
             </geometry>
         </visual>
     </link>
-    <!--
-    <joint name="left_fixed_joint" type="fixed">
-        <parent link="base_link" />
-        <origin xyz="1 1 0" rpy="0 0 0" />
-        <child link="left_rotation_link" />
-    </joint>
-    -->
 
     <link name="prismatic_link">
         <xacro:dummy_inertia />
@@ -160,5 +159,6 @@
             <joint_name>left_revolute_joint</joint_name>
         </plugin>
     </gazebo>
+    -->
 
 </robot>
