@@ -1,0 +1,18 @@
+joint1_cmd_effort:
+    type: std_msgs/Float64
+    force:
+        min: -10.
+        max: 10.
+        to: data
+joint2_cmd_effort:
+  type: std_msgs/Float64
+  force:
+    min: -10.
+    max: 10.
+    to: data
+joint3_cmd_effort:
+  type: std_msgs/Float64
+  force:
+    min: -10.
+    max: 10.
+    to: data

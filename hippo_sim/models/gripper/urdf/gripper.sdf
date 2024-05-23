@@ -1,0 +1,197 @@
+<sdf version='1.9'>
+  <model name='hippocampus'>
+    <joint name='attachment' type='fixed'>
+      <pose relative_to='__model__'>0 0 0 0 0 0</pose>
+      <parent>world</parent>
+      <child>base_link</child>
+    </joint>
+    <link name='base_link'>
+      <pose relative_to='attachment'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.20000000000000001</mass>
+        <inertia>
+          <ixx>2.0000000000000002e-05</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>2.0000000000000002e-05</iyy>
+          <iyz>0</iyz>
+          <izz>2.0000000000000002e-05</izz>
+        </inertia>
+      </inertial>
+      <visual name='base_link_visual'>
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <sphere>
+            <radius>0.050000000000000003</radius>
+          </sphere>
+        </geometry>
+      </visual>
+      <visual name='base_link_fixed_joint_lump__left_rotation_dummy_link_visual_1'>
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.01 0.01 0.5</size>
+          </box>
+        </geometry>
+      </visual>
+    </link>
+    <joint name='prismatic_joint' type='prismatic'>
+      <pose relative_to='base_link'>1 0 0 0 0 0</pose>
+      <parent>base_link</parent>
+      <child>prismatic_link</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>-1</lower>
+          <upper>1</upper>
+          <effort>100</effort>
+          <velocity>1</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='prismatic_link'>
+      <pose relative_to='prismatic_joint'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.10000000000000001</mass>
+        <inertia>
+          <ixx>1.0000000000000001e-05</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1.0000000000000001e-05</iyy>
+          <iyz>0</iyz>
+          <izz>1.0000000000000001e-05</izz>
+        </inertia>
+      </inertial>
+      <visual name='prismatic_link_visual'>
+        <pose>0 0 0 0 1.570796326794897 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.10000000000000001</length>
+            <radius>0.050000000000000003</radius>
+          </cylinder>
+        </geometry>
+      </visual>
+    </link>
+    <joint name='left_prismatic_revolute_joint' type='revolute'>
+      <pose relative_to='prismatic_link'>0 0 0 0 0 0</pose>
+      <parent>prismatic_link</parent>
+      <child>left_prismatic_revolute_link</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-10000000000000000</lower>
+          <upper>10000000000000000</upper>
+        </limit>
+        <dynamics>
+          <damping>1</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='left_prismatic_revolute_link'>
+      <pose relative_to='left_prismatic_revolute_joint'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0.5 0 0 0 0</pose>
+        <mass>0.20000000000000001</mass>
+        <inertia>
+          <ixx>0.050020000000000002</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>2.0000000000000002e-05</iyy>
+          <iyz>0</iyz>
+          <izz>0.050020000000000002</izz>
+        </inertia>
+      </inertial>
+      <visual name='left_prismatic_revolute_link_visual'>
+        <pose>0 0.5 0 1.57 0 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.29999999999999999</length>
+            <radius>0.02</radius>
+          </cylinder>
+        </geometry>
+      </visual>
+      <visual name='left_prismatic_revolute_link_fixed_joint_lump__left_jaw_visual_1'>
+        <pose>0.4 1 0 0 1.570796326794897 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.80000000000000004</length>
+            <radius>0.01</radius>
+          </cylinder>
+        </geometry>
+      </visual>
+    </link>
+    <joint name='left_revolute_joint' type='revolute'>
+      <pose relative_to='left_prismatic_revolute_link'>0 1 0 0 0 0</pose>
+      <parent>left_prismatic_revolute_link</parent>
+      <child>left_rotation_link</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-10000000000000000</lower>
+          <upper>10000000000000000</upper>
+        </limit>
+        <dynamics>
+          <damping>0.59999999999999998</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='left_rotation_link'>
+      <pose relative_to='left_revolute_joint'>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.10000000000000001</mass>
+        <inertia>
+          <ixx>1.0000000000000001e-05</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1.0000000000000001e-05</iyy>
+          <iyz>0</iyz>
+          <izz>1.0000000000000001e-05</izz>
+        </inertia>
+      </inertial>
+      <visual name='left_rotation_link_visual'>
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1 0.1 0.1</size>
+          </box>
+        </geometry>
+      </visual>
+    </link>
+    <plugin name='gz::sim::systems::DetachableJoint' filename='libgz-sim-detachable-joint-system.so'>
+      <parent_link>left_rotation_link</parent_link>
+      <child_model>hippocampus</child_model>
+      <child_link>left_rotation_dummy_link</child_link>
+    </plugin>
+    <plugin name='ignition::gazebo::systems::JointStatePublisher' filename='libignition-gazebo-joint-state-publisher-system.so'/>
+    <plugin name='ignition::gazebo::systems::ApplyJointForce' filename='libignition-gazebo-apply-joint-force-system.so'>
+      <joint_name>prismatic_joint</joint_name>
+    </plugin>
+    <plugin name='ignition::gazebo::systems::ApplyJointForce' filename='libignition-gazebo-apply-joint-force-system.so'>
+      <joint_name>left_prismatic_revolute_joint</joint_name>
+    </plugin>
+    <plugin name='ignition::gazebo::systems::ApplyJointForce' filename='libignition-gazebo-apply-joint-force-system.so'>
+      <joint_name>left_revolute_joint</joint_name>
+    </plugin>
+    <frame name='dummy_joint' attached_to='base_link'>
+      <pose>0 0 0 0 -0 0</pose>
+    </frame>
+    <frame name='left_rotation_dummy_link' attached_to='dummy_joint'/>
+    <frame name='left_jaw_joint' attached_to='left_prismatic_revolute_link'>
+      <pose>0 1 0 0 -0 0</pose>
+    </frame>
+    <frame name='left_jaw' attached_to='left_jaw_joint'/>
+  </model>
+</sdf>
