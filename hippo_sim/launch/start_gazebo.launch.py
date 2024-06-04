@@ -27,8 +27,8 @@ def declare_launch_args(launch_description: LaunchDescription) -> None:
 def create_gazebo_action() -> ExecuteProcess:
     return ExecuteProcess(
         cmd=[
-            'ign',
-            'gazebo',
+            'gz',
+            'sim',
             '-v 2',
             '-r',
             '-s',
@@ -42,7 +42,7 @@ def create_gazebo_action() -> ExecuteProcess:
 
 def create_gazebo_gui_action() -> ExecuteProcess:
     return ExecuteProcess(
-        cmd=['ign', 'gazebo', '-g', '-v 1'],
+        cmd=['gz', 'sim', '-g', '-v 1'],
         condition=IfCondition(LaunchConfiguration('start_gui')),
         output='log',
         on_exit=Shutdown(),
@@ -87,7 +87,7 @@ def create_clock_bridge_action() -> Node:
         package='ros_gz_bridge',
         executable='parameter_bridge',
         arguments=[
-            '/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock',
+            '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
         ],
         output='screen',
     )

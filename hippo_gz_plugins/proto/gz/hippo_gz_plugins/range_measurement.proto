@@ -1,0 +1,9 @@
+syntax = "proto3";
+package gz.hippo_gz_plugins;
+import "gz/msgs/header.proto";
+
+message RangeMeasurement {
+  gz.msgs.Header header = 1;
+  double range = 2;
+  int32 id = 3;
+}

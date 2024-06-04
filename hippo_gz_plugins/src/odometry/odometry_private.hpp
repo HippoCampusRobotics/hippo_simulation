@@ -1,12 +1,12 @@
 #pragma once
-#include <ignition/msgs/odometry.pb.h>
+#include <gz/msgs/odometry.pb.h>
 
-#include <ignition/gazebo/Link.hh>
-#include <ignition/gazebo/Model.hh>
-#include <ignition/gazebo/components/AngularVelocity.hh>
-#include <ignition/gazebo/components/LinearVelocity.hh>
-#include <ignition/gazebo/components/Pose.hh>
-#include <ignition/transport/Node.hh>
+#include <gz/sim/Link.hh>
+#include <gz/sim/Model.hh>
+#include <gz/sim/components/AngularVelocity.hh>
+#include <gz/sim/components/LinearVelocity.hh>
+#include <gz/sim/components/Pose.hh>
+#include <gz/transport/Node.hh>
 #include <sdf/Element.hh>
 
 namespace odometry {
@@ -14,16 +14,16 @@ class PluginPrivate {
  public:
   void ParseSdf(const std::shared_ptr<const sdf::Element> &_sdf);
 
-  bool InitModel(ignition::gazebo::EntityComponentManager &_ecm,
-                 ignition::gazebo::Entity _entity);
-  void Publish(const ignition::gazebo::EntityComponentManager &_ecm,
-               const ignition::msgs::Time &stamp);
+  bool InitModel(gz::sim::EntityComponentManager &_ecm,
+                 gz::sim::Entity _entity);
+  void Publish(const gz::sim::EntityComponentManager &_ecm,
+               const gz::msgs::Time &stamp);
   void Advertise();
 
   //! Publishes linear and angular acceleration as combined twist message in
   //! body frame
   void PublishAcceleration(
-      const ignition::gazebo::EntityComponentManager &_ecm,
+      const gz::sim::EntityComponentManager &_ecm,
       const std::chrono::steady_clock::duration &_sim_time);
 
   std::chrono::steady_clock::duration update_period_{0};
@@ -40,26 +40,26 @@ class PluginPrivate {
   } sdf_params_;
 
   void InitHeader();
-  void InitComponents(ignition::gazebo::EntityComponentManager &_ecm);
+  void InitComponents(gz::sim::EntityComponentManager &_ecm);
   std::string OdometryTopicName();
   std::string WorldLinearAccelerationTopicName();
   std::string AccelerationsTopicName();
 
   //! Publishes linear acceleration in inertial coordinate system
   void PublishWorldLinearAcceleration(
-      const ignition::gazebo::EntityComponentManager &_ecm,
-      const ignition::msgs::Time &_stamp);
+      const gz::sim::EntityComponentManager &_ecm,
+      const gz::msgs::Time &_stamp);
 
-  ignition::gazebo::Model model_{ignition::gazebo::kNullEntity};
+  gz::sim::Model model_{gz::sim::kNullEntity};
   std::string model_name_ = "unknown_model_name";
-  ignition::gazebo::Link link_{ignition::gazebo::kNullEntity};
-  ignition::transport::Node node_;
-  ignition::transport::Node::Publisher odometry_pub_;
-  ignition::transport::Node::Publisher
+  gz::sim::Link link_{gz::sim::kNullEntity};
+  gz::transport::Node node_;
+  gz::transport::Node::Publisher odometry_pub_;
+  gz::transport::Node::Publisher
       world_linear_acceleration_pub_;  //!< publishes linear acceleration in
                                        //!< inertial COS
-  ignition::transport::Node::Publisher
+  gz::transport::Node::Publisher
       accelerations_pub_;  //!< publishes linear and angular local acceleration
-  ignition::msgs::Odometry msg_;
+  gz::msgs::Odometry msg_;
 };
 }  // namespace odometry

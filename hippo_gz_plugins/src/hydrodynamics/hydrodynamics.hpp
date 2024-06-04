@@ -1,41 +1,41 @@
 #pragma once
 
-#include <ignition/gazebo/Link.hh>
-#include <ignition/gazebo/Model.hh>
-#include <ignition/gazebo/System.hh>
-#include <ignition/math.hh>
+#include <gz/math.hh>
+#include <gz/sim/Link.hh>
+#include <gz/sim/Model.hh>
+#include <gz/sim/System.hh>
 
 namespace hydrodynamics {
-class HydrodynamicsPlugin : public ignition::gazebo::System,
-                            public ignition::gazebo::ISystemConfigure,
-                            public ignition::gazebo::ISystemUpdate {
+class HydrodynamicsPlugin : public gz::sim::System,
+                            public gz::sim::ISystemConfigure,
+                            public gz::sim::ISystemUpdate {
  public:
   HydrodynamicsPlugin();
   ~HydrodynamicsPlugin() override;
-  void Configure(const ignition::gazebo::Entity &_entity,
+  void Configure(const gz::sim::Entity &_entity,
                  const std::shared_ptr<const sdf::Element> &_sdf,
-                 ignition::gazebo::EntityComponentManager &_ecm,
-                 ignition::gazebo::EventManager &_eventMgr) override;
-  void Update(const ignition::gazebo::UpdateInfo &_info,
-              ignition::gazebo::EntityComponentManager &_ecm) override;
+                 gz::sim::EntityComponentManager &_ecm,
+                 gz::sim::EventManager &_eventMgr) override;
+  void Update(const gz::sim::UpdateInfo &_info,
+              gz::sim::EntityComponentManager &_ecm) override;
 
  private:
-  ignition::math::Vector3d added_mass_linear_{0.0, 0.0, 0.0};
-  ignition::math::Vector3d added_mass_angular_{0.0, 0.0, 0.0};
-  ignition::math::Matrix3d damping_linear_;
-  ignition::math::Matrix3d damping_angular_;
+  gz::math::Vector3d added_mass_linear_{0.0, 0.0, 0.0};
+  gz::math::Vector3d added_mass_angular_{0.0, 0.0, 0.0};
+  gz::math::Matrix3d damping_linear_;
+  gz::math::Matrix3d damping_angular_;
 
-  ignition::gazebo::Entity link_entity_{ignition::gazebo::kNullEntity};
-  ignition::gazebo::Link link_{ignition::gazebo::kNullEntity};
-  ignition::gazebo::Model model_{ignition::gazebo::kNullEntity};
+  gz::sim::Entity link_entity_{gz::sim::kNullEntity};
+  gz::sim::Link link_{gz::sim::kNullEntity};
+  gz::sim::Model model_{gz::sim::kNullEntity};
 
   void ParseSdf(const std::shared_ptr<const sdf::Element> &_sdf,
-                const ignition::gazebo::EntityComponentManager &_ecm);
+                const gz::sim::EntityComponentManager &_ecm);
   void ParseHydrodynamics(const sdf::ElementPtr _element,
-                          const ignition::gazebo::EntityComponentManager &_ecm);
-  void UpdateForcesAndMoments(ignition::gazebo::EntityComponentManager &_ecm);
+                          const gz::sim::EntityComponentManager &_ecm);
+  void UpdateForcesAndMoments(gz::sim::EntityComponentManager &_ecm);
 
-  void CreateComponents(const ignition::gazebo::Entity &_entity,
-                        ignition::gazebo::EntityComponentManager &_ecm);
+  void CreateComponents(const gz::sim::Entity &_entity,
+                        gz::sim::EntityComponentManager &_ecm);
 };
 }  // namespace hydrodynamics

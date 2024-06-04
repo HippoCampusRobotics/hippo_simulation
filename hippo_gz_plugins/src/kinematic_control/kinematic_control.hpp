@@ -1,54 +1,55 @@
 #ifndef HIPPO_GZ_PLUGINS_KINEMATIC_CONTROL_HPP
 #define HIPPO_GZ_PLUGINS_KINEMATIC_CONTROL_HPP
 
-#include <ignition/msgs/vector3d.pb.h>
+#include <gz/msgs/twist.pb.h>
+#include <gz/msgs/vector3d.pb.h>
 
-#include <ignition/gazebo/System.hh>
-#include <ignition/plugin/Register.hh>
-#include <ignition/transport/Node.hh>
+#include <gz/plugin/Register.hh>
+#include <gz/sim/System.hh>
+#include <gz/transport/Node.hh>
 
-#include "ignition/gazebo/Link.hh"
-#include "ignition/gazebo/Model.hh"
-#include "ignition/gazebo/components/AngularVelocity.hh"
-#include "ignition/gazebo/components/AngularVelocityCmd.hh"
-#include "ignition/gazebo/components/LinearVelocity.hh"
-#include "ignition/gazebo/components/LinearVelocityCmd.hh"
+#include "gz/sim/Link.hh"
+#include "gz/sim/Model.hh"
+#include "gz/sim/components/AngularVelocity.hh"
+#include "gz/sim/components/AngularVelocityCmd.hh"
+#include "gz/sim/components/LinearVelocity.hh"
+#include "gz/sim/components/LinearVelocityCmd.hh"
 
 namespace kinematic_control {
 class KinematicControlPrivate {
   /// \brief Callback for twist msg subscription
  public:
-  void OnVelCmd(const ignition::msgs::Twist &_msg);
+  void OnVelCmd(const gz::msgs::Twist &_msg);
 
   /// \brief Ignition communication node.
  public:
-  ignition::transport::Node node;
+  gz::transport::Node node;
 
  public:
-  ignition::gazebo::Link link;
+  gz::sim::Link link;
   /// \brief Link Entity
  public:
-  ignition::gazebo::Entity linkEntity;
+  gz::sim::Entity linkEntity;
 
   /// \brief Commanded linear velocity
  public:
-  ignition::math::Vector3d linearVelCmd;
+  gz::math::Vector3d linearVelCmd;
 
  public:
-  ignition::math::Vector3d lastLinearVelCmd;
+  gz::math::Vector3d lastLinearVelCmd;
 
  public:
-  ignition::math::Vector3d offsetsLinearVelCmd;
+  gz::math::Vector3d offsetsLinearVelCmd;
 
   /// \brief Commanded angular velocity
  public:
-  ignition::math::Vector3d angularVelCmd;
+  gz::math::Vector3d angularVelCmd;
 
  public:
-  ignition::math::Vector3d lastAngularVelCmd;
+  gz::math::Vector3d lastAngularVelCmd;
 
  public:
-  ignition::math::Vector3d offsetsAngularVelCmd;
+  gz::math::Vector3d offsetsAngularVelCmd;
 
  public:
   bool first_update;
@@ -67,12 +68,12 @@ class KinematicControlPrivate {
 
   /// \brief Model interface
  public:
-  ignition::gazebo::Model model{ignition::gazebo::kNullEntity};
+  gz::sim::Model model{gz::sim::kNullEntity};
 };
 
-class KinematicControl : public ignition::gazebo::System,
-                         public ignition::gazebo::ISystemConfigure,
-                         public ignition::gazebo::ISystemPreUpdate {
+class KinematicControl : public gz::sim::System,
+                         public gz::sim::ISystemConfigure,
+                         public gz::sim::ISystemPreUpdate {
  public:
   KinematicControl();
 
@@ -80,14 +81,14 @@ class KinematicControl : public ignition::gazebo::System,
   ~KinematicControl() override = default;
 
  public:
-  void Configure(const ignition::gazebo::Entity &_entity,
+  void Configure(const gz::sim::Entity &_entity,
                  const std::shared_ptr<const sdf::Element> &_sdf,
-                 ignition::gazebo::EntityComponentManager &_ecm,
-                 ignition::gazebo::EventManager &_eventMgr) override;
+                 gz::sim::EntityComponentManager &_ecm,
+                 gz::sim::EventManager &_eventMgr) override;
 
  public:
-  void PreUpdate(const ignition::gazebo::UpdateInfo &_info,
-                 ignition::gazebo::EntityComponentManager &_ecm) override;
+  void PreUpdate(const gz::sim::UpdateInfo &_info,
+                 gz::sim::EntityComponentManager &_ecm) override;
 
  private:
   std::unique_ptr<KinematicControlPrivate> dataPtr;

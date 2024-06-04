@@ -1,20 +1,19 @@
 #pragma once
-#include <ignition/gazebo/System.hh>
+#include <gz/sim/System.hh>
 
 namespace pose {
 class PosePluginPrivate;
-class PosePlugin : public ignition::gazebo::System,
-                   public ignition::gazebo::ISystemConfigure,
-                   public ignition::gazebo::ISystemPostUpdate {
+class PosePlugin : public gz::sim::System,
+                   public gz::sim::ISystemConfigure,
+                   public gz::sim::ISystemPostUpdate {
  public:
   PosePlugin();
-  void Configure(const ignition::gazebo::Entity &_entity,
+  void Configure(const gz::sim::Entity &_entity,
                  const std::shared_ptr<const sdf::Element> &_sdf,
-                 ignition::gazebo::EntityComponentManager &_ecm,
-                 ignition::gazebo::EventManager &_eventMgr) override;
-  void PostUpdate(
-      const ignition::gazebo::UpdateInfo &_info,
-      const ignition::gazebo::EntityComponentManager &_ecm) override;
+                 gz::sim::EntityComponentManager &_ecm,
+                 gz::sim::EventManager &_eventMgr) override;
+  void PostUpdate(const gz::sim::UpdateInfo &_info,
+                  const gz::sim::EntityComponentManager &_ecm) override;
 
  private:
   std::unique_ptr<PosePluginPrivate> private_;

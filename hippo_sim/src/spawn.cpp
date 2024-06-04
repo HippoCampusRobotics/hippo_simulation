@@ -1,12 +1,12 @@
 #include <gflags/gflags.h>
-#include <ignition/msgs/entity_factory.pb.h>
 
-#include <ignition/gazebo/EntityComponentManager.hh>
-#include <ignition/gazebo/components/Model.hh>
-#include <ignition/gazebo/components/Name.hh>
-#include <ignition/math/Pose3.hh>
-#include <ignition/msgs/Utility.hh>
-#include <ignition/transport/Node.hh>
+#include <gz/math/Pose3.hh>
+#include <gz/msgs.hh>
+#include <gz/msgs/Utility.hh>
+#include <gz/sim/EntityComponentManager.hh>
+#include <gz/sim/components/Model.hh>
+#include <gz/sim/components/Name.hh>
+#include <gz/transport/Node.hh>
 #include <rclcpp/rclcpp.hpp>
 
 DEFINE_string(world, "", "World name.");
@@ -23,12 +23,12 @@ DEFINE_double(P, 0, "Pitch component of initial orientation, in radians.");
 DEFINE_double(Y, 0, "Yaw component of initial orientation, in radians.");
 
 std::string get_world_name(rclcpp::Node::SharedPtr ros_node) {
-  ignition::transport::Node node;
+  gz::transport::Node node;
   unsigned int timeout{5000};
   bool done{false};
   bool result{false};
   std::string service{"/gazebo/worlds"};
-  ignition::msgs::StringMsg_V worlds_msgs;
+  gz::msgs::StringMsg_V worlds_msgs;
 
   while (rclcpp::ok() && !done) {
     RCLCPP_INFO(ros_node->get_logger(), "Requesting list of world names.");
@@ -67,8 +67,8 @@ std::string get_sdf(rclcpp::Node::SharedPtr ros_node) {
 bool DeleteModel(const std::string &_model_name,
                  const std::string &_world_name) {
   std::string service{"/world/" + _world_name + "/state"};
-  ignition::msgs::SerializedStepMap response;
-  ignition::transport::Node node;
+  gz::msgs::SerializedStepMap response;
+  gz::transport::Node node;
   bool result{false};
   if (!node.Request(service, 5000, response, result)) {
     std::cerr << std::endl
@@ -81,21 +81,20 @@ bool DeleteModel(const std::string &_model_name,
               << "Service call of [" << service << "] failed." << std::endl;
     return false;
   }
-  ignition::gazebo::EntityComponentManager ecm;
+  gz::sim::EntityComponentManager ecm;
   ecm.SetState(response.state());
 
   service = "/world/" + _world_name + "/remove";
-  ignition::msgs::Entity request;
-  ignition::gazebo::Entity entity =
-      ecm.EntityByComponents(ignition::gazebo::components::Name(_model_name),
-                             ignition::gazebo::components::Model());
-  if (entity == ignition::gazebo::kNullEntity) {
+  gz::msgs::Entity request;
+  gz::sim::Entity entity = ecm.EntityByComponents(
+      gz::sim::components::Name(_model_name), gz::sim::components::Model());
+  if (entity == gz::sim::kNullEntity) {
     std::cerr << "Model with name [" << _model_name << "] does not exist.";
     return false;
   }
   // request.set_name(_model_name);
   request.set_id(entity);
-  ignition::msgs::Boolean delete_response;
+  gz::msgs::Boolean delete_response;
   if (!node.Request(service, request, 5000, delete_response, result)) {
     std::cerr << std::endl
               << "Delete model [" << _model_name << "] timed out." << std::endl;
@@ -123,16 +122,15 @@ int main(int _argc, char **_argv) {
   }
 
   std::string service{"/world/" + world_name + "/create"};
-  ignition::msgs::EntityFactory req;
+  gz::msgs::EntityFactory req;
   std::string sdf_string = get_sdf(ros_node);
   if (sdf_string == "") {
     return -1;
   }
   req.set_sdf(sdf_string);
 
-  ignition::math::Pose3d pose{FLAGS_x, FLAGS_y, FLAGS_z,
-                              FLAGS_R, FLAGS_P, FLAGS_Y};
-  ignition::msgs::Set(req.mutable_pose(), pose);
+  gz::math::Pose3d pose{FLAGS_x, FLAGS_y, FLAGS_z, FLAGS_R, FLAGS_P, FLAGS_Y};
+  gz::msgs::Set(req.mutable_pose(), pose);
 
   if (!FLAGS_name.empty()) {
     req.set_name(FLAGS_name);
@@ -154,8 +152,8 @@ int main(int _argc, char **_argv) {
     req.set_allow_renaming(FLAGS_allow_renaming);
   }
 
-  ignition::transport::Node node;
-  ignition::msgs::Boolean response;
+  gz::transport::Node node;
+  gz::msgs::Boolean response;
 
   bool result;
   unsigned int timeout = 5000;

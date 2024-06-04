@@ -16,24 +16,35 @@ add_compile_options(${CXX_FLAGS})
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp_components)
-find_package(hippo_gz_msgs REQUIRED)
 find_package(hippo_msgs REQUIRED)
 find_package(hippo_common REQUIRED)
+find_package(Protobuf REQUIRED)
 
-find_package(ignition-plugin1 REQUIRED COMPONENTS register)
-set(GZ_PLUGIN_VER ${ignition-plugin1_VERSION_MAJOR})
+find_package(gz_plugin_vendor REQUIRED)
+find_package(gz-plugin REQUIRED)
+find_package(gz_sim_vendor REQUIRED)
+find_package(gz-sim REQUIRED)
+find_package(gz_transport_vendor REQUIRED)
+find_package(gz-transport REQUIRED)
+find_package(gz_common_vendor REQUIRED)
+find_package(gz-common REQUIRED)
+find_package(gz_msgs_vendor REQUIRED)
+find_package(gz-msgs REQUIRED)
+find_package(sdformat_vendor REQUIRED)
+find_package(sdformat REQUIRED)
 
-find_package(ignition-gazebo6 REQUIRED)
-set(GZ_GAZEBO_VER ${ignition-gazebo6_VERSION_MAJOR})
-
-find_package(ignition-common4 REQUIRED)
-set(GZ_COMMON_VER ${ignition-common4_VERSION_MAJOR})
-
-find_package(sdformat12 REQUIRED)
-set(GZ_SDF_VER ${sdformat12_VERSION_MAJOR})
-
-find_package(ignition-transport11 REQUIRED)
-set(GZ_TRANSPORT_VER ${ignition-transport11_VERSION_MAJOR})
+set(msgs_protos
+  ${CMAKE_CURRENT_SOURCE_DIR}/proto/gz/hippo_gz_plugins/range_measurement.proto
+  ${CMAKE_CURRENT_SOURCE_DIR}/proto/gz/hippo_gz_plugins/range_measurement_array.proto
+)
+gz_msgs_generate_messages(
+  TARGET msgs
+  PROTO_PACKAGE "gz.hippo_gz_plugins"
+  MSGS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/proto
+  MSGS_PROTOS ${msgs_protos}
+  DEPENDENCIES gz-msgs
+)
+include_directories(${CMAKE_BINARY_DIR})
 
 # find_package(ignition-msgs8 REQUIRED)
 # set(GZ_MSGS_VER ${ignition-msgs8_VERSION_MAJOR})
@@ -51,12 +62,13 @@ function(add_plugin plugin_name)
   src/${plugin_name}/${plugin_name}_private.cpp
   )
   target_include_directories(${plugin_name} PRIVATE include)
-  ament_target_dependencies(${plugin_name}
-  ignition-plugin${GZ_PLUGIN_VER}
-  ignition-gazebo${GZ_GAZEBO_VER}
-  ignition-common${GZ_COMMON_VER}
-  sdformat${GZ_SDF_VER}
-  hippo_gz_msgs
+  target_link_libraries(${plugin_name}
+    gz-plugin::core
+    gz-sim::core
+    gz-common::core
+    gz-msgs::core
+    gz-transport::core
+    hippo_gz_plugins-msgs
   )
 
   install(TARGETS ${plugin_name}
@@ -79,13 +91,16 @@ target_include_directories(${component_name}
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
+target_link_libraries(${component_name}
+  hippo_gz_plugins-msgs
+  gz-transport::core
+)
+
 ament_target_dependencies(${component_name}
   rclcpp
   rclcpp_components
   hippo_common
   hippo_msgs
-  hippo_gz_msgs
-  ignition-transport${GZ_TRANSPORT_VER}
 )
 rclcpp_components_register_node(${component_name} PLUGIN "hippo_gz_plugins::range_sensor_bridge::RangeSensor" EXECUTABLE ${component_name}_node)
 install(TARGETS ${component_name}

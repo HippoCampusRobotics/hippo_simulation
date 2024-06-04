@@ -71,8 +71,7 @@
                 <update_rate>${fps}</update_rate>
                 <visualize>true</visualize>
                 <topic>${topic_prefix}/image_rect</topic>
-                <!-- needs to be changed to gz_frame_id in the future -->
-                <ignition_frame_id>${ignition_frame_id}</ignition_frame_id>
+                <gz_frame_id>${ignition_frame_id}</gz_frame_id>
             </sensor>
         </gazebo>
 

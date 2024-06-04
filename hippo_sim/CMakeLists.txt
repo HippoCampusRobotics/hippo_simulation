@@ -23,24 +23,23 @@ find_package(hippo_msgs REQUIRED)
 find_package(hippo_control_msgs REQUIRED)
 find_package(hippo_common REQUIRED)
 find_package(hippo_gz_plugins REQUIRED)
-find_package(hippo_gz_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 
-find_package(ignition-plugin1 REQUIRED COMPONENTS register)
-set(GZ_PLUGIN_VER ${ignition-plugin1_VERSION_MAJOR})
-find_package(ignition-gazebo6 REQUIRED)
-set(GZ_GAZEBO_VER ${ignition-gazebo6_VERSION_MAJOR})
-find_package(ignition-msgs8 REQUIRED)
-set(GZ_MSGS_VER ${ignition-msgs8_VERSION_MAJOR})
-find_package(ignition-math6 REQUIRED)
-set(GZ_MATH_VER ${ignition-math6_VERSION_MAJOR})
-find_package(ignition-transport11 REQUIRED)
-set(GZ_TRANSPORT_VER ${ignition-transport11_VERSION_MAJOR})
-find_package(ignition-common4 REQUIRED)
-set(GZ_COMMON_VER ${ignition-common4_VERSION_MAJOR})
+find_package(gz_plugin_vendor REQUIRED)
+find_package(gz-plugin REQUIRED)
+find_package(gz_sim_vendor REQUIRED)
+find_package(gz-sim REQUIRED)
+find_package(gz_msgs_vendor REQUIRED)
+find_package(gz-msgs REQUIRED)
+find_package(gz_math_vendor REQUIRED)
+find_package(gz-math REQUIRED)
+find_package(gz_transport_vendor REQUIRED)
+find_package(gz-transport REQUIRED)
+find_package(gz_common_vendor REQUIRED)
+find_package(gz-common REQUIRED)
 
 set(exec_targets "")
 
@@ -51,25 +50,28 @@ list(APPEND exec_targets ${exec_name})
 
 set(exec_name spawn)
 add_executable(${exec_name} src/spawn.cpp)
+target_link_libraries(${exec_name}
+  gz-math::core
+  gz-msgs::core
+  gz-transport::core
+  gz-sim::core
+)
 ament_target_dependencies(${exec_name}
   rclcpp
 )
 target_link_libraries(${exec_name}
   gflags
-  ignition-math${GZ_MATH_VER}::core
-  ignition-msgs${GZ_MSGS_VER}::core
-  ignition-transport${GZ_TRANSPORT_VER}::core
-  ignition-gazebo${GZ_GAZEBO_VER}::core
 )
 list(APPEND exec_targets ${exec_name})
 
 set(exec_name bridge)
 add_executable(${exec_name} src/static_bridge.cpp)
+target_link_libraries(${exec_name}
+  gz-transport::core
+)
 ament_target_dependencies(${exec_name}
   rclcpp
-  hippo_gz_msgs
   ros_gz_bridge
-  ignition-transport${GZ_TRANSPORT_VER}
   geometry_msgs
   nav_msgs
   hippo_msgs

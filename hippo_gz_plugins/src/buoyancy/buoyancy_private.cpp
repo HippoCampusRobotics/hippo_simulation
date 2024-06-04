@@ -1,8 +1,8 @@
 #include "buoyancy_private.hpp"
 
-#include <ignition/gazebo/Util.hh>
-#include <ignition/gazebo/components/Inertial.hh>
-#include <ignition/gazebo/components/Pose.hh>
+#include <gz/sim/Util.hh>
+#include <gz/sim/components/Inertial.hh>
+#include <gz/sim/components/Pose.hh>
 
 namespace buoyancy {
 
@@ -50,8 +50,7 @@ void PluginPrivate::ParseSdf(const std::shared_ptr<const sdf::Element> &_sdf) {
 
     if (element->HasElement("origin")) {
       sdf_params_.origin =
-          element->Get<ignition::math::Vector3d>("origin", sdf_params_.origin)
-              .first;
+          element->Get<gz::math::Vector3d>("origin", sdf_params_.origin).first;
     } else {
       ignerr << "Missing field 'origin' in buoyancy plugin" << std::endl;
     }
@@ -59,9 +58,9 @@ void PluginPrivate::ParseSdf(const std::shared_ptr<const sdf::Element> &_sdf) {
   }
 }
 
-bool PluginPrivate::InitModel(ignition::gazebo::EntityComponentManager &_ecm,
-                              ignition::gazebo::Entity _entity) {
-  model_ = ignition::gazebo::Model(_entity);
+bool PluginPrivate::InitModel(gz::sim::EntityComponentManager &_ecm,
+                              gz::sim::Entity _entity) {
+  model_ = gz::sim::Model(_entity);
   if (!model_.Valid(_ecm)) {
     return false;
   }
@@ -70,29 +69,24 @@ bool PluginPrivate::InitModel(ignition::gazebo::EntityComponentManager &_ecm,
   return true;
 }
 
-void PluginPrivate::ApplyBuoyancy(
-    ignition::gazebo::EntityComponentManager &_ecm) {
+void PluginPrivate::ApplyBuoyancy(gz::sim::EntityComponentManager &_ecm) {
   if (!_ecm.HasEntity(link_.Entity())) {
     return;
   }
-  if (!_ecm.EntityHasComponentType(
-          link_.Entity(), ignition::gazebo::components::Inertial().TypeId())) {
+  if (!_ecm.EntityHasComponentType(link_.Entity(),
+                                   gz::sim::components::Inertial().TypeId())) {
     return;
   }
-  auto inertial =
-      _ecm.Component<ignition::gazebo::components::Inertial>(link_.Entity());
+  auto inertial = _ecm.Component<gz::sim::components::Inertial>(link_.Entity());
   double mass = inertial->Data().MassMatrix().Mass();
   double buoyancy_mass = mass * sdf_params_.relative_compensation;
-  ignition::math::Vector3d force =
-      sdf_params_.additional_buoyancy_force +
-      ignition::math::Vector3d(0.0, 0.0, 9.81 * buoyancy_mass);
+  gz::math::Vector3d force = sdf_params_.additional_buoyancy_force +
+                             gz::math::Vector3d(0.0, 0.0, 9.81 * buoyancy_mass);
 
-  ignition::math::Pose3d pose_link =
-      ignition::gazebo::worldPose(link_.Entity(), _ecm);
-  ignition::math::Vector3d buoyancy_offset =
+  gz::math::Pose3d pose_link = gz::sim::worldPose(link_.Entity(), _ecm);
+  gz::math::Vector3d buoyancy_offset =
       pose_link.Rot().RotateVector(sdf_params_.origin);
-  ignition::math::Vector3d center_of_gravity =
-      pose_link.Pos() + buoyancy_offset;
+  gz::math::Vector3d center_of_gravity = pose_link.Pos() + buoyancy_offset;
 
   double scale =
       std::abs((center_of_gravity.Z() - sdf_params_.height_scale_limit) /
@@ -100,19 +94,16 @@ void PluginPrivate::ApplyBuoyancy(
   if (center_of_gravity.Z() > sdf_params_.height_scale_limit) {
     scale = 0.0;
   }
-  scale = ignition::math::clamp(scale, 0.0, 1.0);
+  scale = gz::math::clamp(scale, 0.0, 1.0);
   force *= scale;
-  ignition::math::Vector3d moment = buoyancy_offset.Cross(force);
+  gz::math::Vector3d moment = buoyancy_offset.Cross(force);
   link_.AddWorldWrench(_ecm, force, moment);
 }
 
-void PluginPrivate::InitComponents(
-    ignition::gazebo::EntityComponentManager &_ecm) {
-  link_ = ignition::gazebo::Link(model_.LinkByName(_ecm, sdf_params_.link));
-  if (!_ecm.Component<ignition::gazebo::components::WorldPose>(
-          link_.Entity())) {
-    _ecm.CreateComponent(link_.Entity(),
-                         ignition::gazebo::components::WorldPose());
+void PluginPrivate::InitComponents(gz::sim::EntityComponentManager &_ecm) {
+  link_ = gz::sim::Link(model_.LinkByName(_ecm, sdf_params_.link));
+  if (!_ecm.Component<gz::sim::components::WorldPose>(link_.Entity())) {
+    _ecm.CreateComponent(link_.Entity(), gz::sim::components::WorldPose());
   }
 }
 }  // namespace buoyancy

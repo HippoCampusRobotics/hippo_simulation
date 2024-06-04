@@ -16,7 +16,7 @@ RangeSensor::RangeSensor(rclcpp::NodeOptions const &_options)
 }
 
 void RangeSensor::OnRanges(
-    const hippo_gz_msgs::msg::RangeMeasurementArray &_msg) {
+    const gz::hippo_gz_plugins::RangeMeasurementArray &_msg) {
   rclcpp::Time t_now = now();
   hippo_msgs::msg::RangeMeasurementArray ros_msg;
   ros_msg.header.stamp = t_now;

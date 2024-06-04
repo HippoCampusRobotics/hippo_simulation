@@ -1,22 +1,21 @@
 #pragma once
 
-#include <ignition/gazebo/System.hh>
+#include <gz/sim/System.hh>
 
 #include "barometer_private.hpp"
 
 namespace barometer {
-class Plugin : public ignition::gazebo::System,
-               public ignition::gazebo::ISystemConfigure,
-               public ignition::gazebo::ISystemPostUpdate {
+class Plugin : public gz::sim::System,
+               public gz::sim::ISystemConfigure,
+               public gz::sim::ISystemPostUpdate {
  public:
   Plugin();
-  void Configure(const ignition::gazebo::Entity &_entity,
+  void Configure(const gz::sim::Entity &_entity,
                  const std::shared_ptr<const sdf::Element> &_sdf,
-                 ignition::gazebo::EntityComponentManager &_ecm,
-                 ignition::gazebo::EventManager &_eventMgr) override;
-  void PostUpdate(
-      const ignition::gazebo::UpdateInfo &_info,
-      const ignition::gazebo::EntityComponentManager &_ecm) override;
+                 gz::sim::EntityComponentManager &_ecm,
+                 gz::sim::EventManager &_eventMgr) override;
+  void PostUpdate(const gz::sim::UpdateInfo &_info,
+                  const gz::sim::EntityComponentManager &_ecm) override;
 
  private:
   std::unique_ptr<PluginPrivate> private_;

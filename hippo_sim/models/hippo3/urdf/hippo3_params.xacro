@@ -13,7 +13,7 @@
     <xacro:property name="damping_angular" value="0.00174 0.007 0.007"/>
 
     <xacro:arg name="use_vertical_camera" default="false" />
-    <xacro:property name="vertical_camera_position" value="0.15, 0.0 -0.03" />
+    <xacro:property name="vertical_camera_position" value="0.15 0.0 -0.03" />
     <xacro:property name="vertical_camera_orientation" value="0 ${radians(90)} 0" />
 
     <xacro:arg name="use_acoustic_modem" default="false" />

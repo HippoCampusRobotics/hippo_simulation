@@ -1,14 +1,15 @@
 #include "kinematic_control.hpp"
 
+#include <gz/msgs.hh>
+
 #define SDF_MISSING_ELEMENT(x) \
   (ignerr << "Could not find [" << x << "] element in sdf." << std::endl)
 
-IGNITION_ADD_PLUGIN(kinematic_control::KinematicControl,
-                    ignition::gazebo::System,
-                    kinematic_control::KinematicControl::ISystemConfigure,
-                    kinematic_control::KinematicControl::ISystemPreUpdate)
-IGNITION_ADD_PLUGIN_ALIAS(kinematic_control::KinematicControl,
-                          "hippo_gz_plugins::kinematic_control")
+GZ_ADD_PLUGIN(kinematic_control::KinematicControl, gz::sim::System,
+              kinematic_control::KinematicControl::ISystemConfigure,
+              kinematic_control::KinematicControl::ISystemPreUpdate)
+GZ_ADD_PLUGIN_ALIAS(kinematic_control::KinematicControl,
+                    "hippo_gz_plugins::kinematic_control")
 
 using namespace kinematic_control;
 
@@ -18,11 +19,11 @@ KinematicControl::KinematicControl()
 
 //////////////////////////////////////////////////
 void KinematicControl::Configure(
-    const ignition::gazebo::Entity &_entity,
+    const gz::sim::Entity &_entity,
     const std::shared_ptr<const sdf::Element> &_sdf,
-    ignition::gazebo::EntityComponentManager &_ecm,
-    ignition::gazebo::EventManager & /*_eventMgr*/) {
-  this->dataPtr->model = ignition::gazebo::Model(_entity);
+    gz::sim::EntityComponentManager &_ecm,
+    gz::sim::EventManager & /*_eventMgr*/) {
+  this->dataPtr->model = gz::sim::Model(_entity);
 
   if (!this->dataPtr->model.Valid(_ecm)) {
     ignerr << "KinematicControl plugin should be attached to a model entity. "
@@ -39,18 +40,18 @@ void KinematicControl::Configure(
   }
 
   this->dataPtr->linkEntity = this->dataPtr->model.LinkByName(_ecm, linkName);
-  if (this->dataPtr->linkEntity == ignition::gazebo::kNullEntity) {
+  if (this->dataPtr->linkEntity == gz::sim::kNullEntity) {
     ignerr << "Link with name[" << linkName << "] not found. "
            << "The KinematicControl may not control this joint.\n";
     return;
   }
 
-  this->dataPtr->link = ignition::gazebo::Link(this->dataPtr->linkEntity);
+  this->dataPtr->link = gz::sim::Link(this->dataPtr->linkEntity);
   this->dataPtr->link.EnableVelocityChecks(_ecm, true);
   std::string topic;
   // Subscribe to commands
 
-  topic = ignition::transport::TopicUtils::AsValidTopic(
+  topic = gz::transport::TopicUtils::AsValidTopic(
       "/" + this->dataPtr->model.Name(_ecm) + "/vel_cmds");
   if (topic.empty()) {
     ignerr << "Failed to create topic vel_cmds for link [" << linkName << "]"
@@ -64,20 +65,19 @@ void KinematicControl::Configure(
   ignmsg << "KinematicControl subscribing to Twist messages on [" << topic
          << "]" << std::endl;
 
-  this->dataPtr->offsetsLinearVelCmd = ignition::math::Vector3d(0.0, 0.0, 0.0);
-  this->dataPtr->offsetsAngularVelCmd = ignition::math::Vector3d(0.0, 0.0, 0.0);
+  this->dataPtr->offsetsLinearVelCmd = gz::math::Vector3d(0.0, 0.0, 0.0);
+  this->dataPtr->offsetsAngularVelCmd = gz::math::Vector3d(0.0, 0.0, 0.0);
   this->dataPtr->first_update = false;
   this->dataPtr->smoothing_fac = 0.1;
 }
 
 //////////////////////////////////////////////////
-void KinematicControl::PreUpdate(
-    const ignition::gazebo::UpdateInfo &_info,
-    ignition::gazebo::EntityComponentManager &_ecm) {
+void KinematicControl::PreUpdate(const gz::sim::UpdateInfo &_info,
+                                 gz::sim::EntityComponentManager &_ecm) {
   // IGN_PROFILE("KinematicControl::PreUpdate");
 
   // If the joint hasn't been identified yet, the plugin is disabled
-  if (this->dataPtr->linkEntity == ignition::gazebo::kNullEntity) {
+  if (this->dataPtr->linkEntity == gz::sim::kNullEntity) {
     ignwarn << "Link could be identified yet, skip update step" << std::endl;
     return;
   }
@@ -93,29 +93,28 @@ void KinematicControl::PreUpdate(
   if (_info.paused) return;
 
   if (this->dataPtr->first_update) {
-    auto linear_vel_comp =
-        _ecm.Component<ignition::gazebo::components::LinearVelocity>(
-            this->dataPtr->linkEntity);
+    auto linear_vel_comp = _ecm.Component<gz::sim::components::LinearVelocity>(
+        this->dataPtr->linkEntity);
     if (linear_vel_comp == nullptr) {
       _ecm.CreateComponent(this->dataPtr->linkEntity,
-                           ignition::gazebo::components::LinearVelocity());
+                           gz::sim::components::LinearVelocity());
     }
 
     auto angular_vel_comp =
-        _ecm.Component<ignition::gazebo::components::AngularVelocity>(
+        _ecm.Component<gz::sim::components::AngularVelocity>(
             this->dataPtr->linkEntity);
     if (angular_vel_comp == nullptr) {
       _ecm.CreateComponent(this->dataPtr->linkEntity,
-                           ignition::gazebo::components::AngularVelocity());
+                           gz::sim::components::AngularVelocity());
     }
     auto pose = this->dataPtr->link.WorldPose(_ecm);
 
     auto world_linear_velocity = this->dataPtr->link.WorldLinearVelocity(_ecm);
     auto world_angular_velocity =
         this->dataPtr->link.WorldAngularVelocity(_ecm);
-    ignition::math::Vector3d linear_velocity =
+    gz::math::Vector3d linear_velocity =
         pose->Rot().Inverse().RotateVector(world_linear_velocity.value());
-    ignition::math::Vector3d angular_velocity =
+    gz::math::Vector3d angular_velocity =
         pose->Rot().Inverse().RotateVector(world_angular_velocity.value());
     this->dataPtr->offsetsLinearVelCmd =
         this->dataPtr->smoothing_fac *
@@ -148,15 +147,15 @@ void KinematicControl::PreUpdate(
 
 //////////////////////////////////////////////////
 
-void KinematicControlPrivate::OnVelCmd(const ignition::msgs::Twist &_msg) {
+void KinematicControlPrivate::OnVelCmd(const gz::msgs::Twist &_msg) {
   {
     std::lock_guard<std::mutex> lock(this->linearVelCmdMutex);
-    this->linearVelCmd = ignition::msgs::Convert(_msg.linear());
+    this->linearVelCmd = gz::msgs::Convert(_msg.linear());
     this->linearVelCmd += this->offsetsLinearVelCmd;
   }
   {
     std::lock_guard<std::mutex> lock(this->angularVelCmdMutex);
-    this->angularVelCmd = ignition::msgs::Convert(_msg.angular());
+    this->angularVelCmd = gz::msgs::Convert(_msg.angular());
     this->angularVelCmd += this->offsetsAngularVelCmd;
   }
 }

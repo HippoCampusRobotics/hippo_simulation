@@ -1,8 +1,9 @@
 #include "odometry_private.hpp"
 
-#include <ignition/gazebo/Conversions.hh>
-#include <ignition/gazebo/components/AngularAcceleration.hh>
-#include <ignition/gazebo/components/LinearAcceleration.hh>
+#include <gz/msgs.hh>
+#include <gz/sim.hh>
+#include <gz/sim/components/AngularAcceleration.hh>
+#include <gz/sim/components/LinearAcceleration.hh>
 
 namespace odometry {
 
@@ -32,9 +33,9 @@ void PluginPrivate::ParseSdf(const std::shared_ptr<const sdf::Element> &_sdf) {
   }
 }
 
-bool PluginPrivate::InitModel(ignition::gazebo::EntityComponentManager &_ecm,
-                              ignition::gazebo::Entity _entity) {
-  model_ = ignition::gazebo::Model(_entity);
+bool PluginPrivate::InitModel(gz::sim::EntityComponentManager &_ecm,
+                              gz::sim::Entity _entity) {
+  model_ = gz::sim::Model(_entity);
   if (!model_.Valid(_ecm)) {
     return false;
   }
@@ -44,9 +45,8 @@ bool PluginPrivate::InitModel(ignition::gazebo::EntityComponentManager &_ecm,
   return true;
 }
 
-void PluginPrivate::Publish(
-    const ignition::gazebo::EntityComponentManager &_ecm,
-    const ignition::msgs::Time &stamp) {
+void PluginPrivate::Publish(const gz::sim::EntityComponentManager &_ecm,
+                            const gz::msgs::Time &stamp) {
   msg_.mutable_header()->mutable_stamp()->CopyFrom(stamp);
 
   auto pose = link_.WorldPose(_ecm);
@@ -58,17 +58,16 @@ void PluginPrivate::Publish(
   auto twist = msg_.mutable_twist();
   header->mutable_stamp()->CopyFrom(stamp);
 
-  ignition::msgs::Set(msg_.mutable_pose(), *pose);
-  ignition::msgs::Set(twist->mutable_angular(), v_angular_local);
-  ignition::msgs::Set(twist->mutable_linear(), v_linear_local);
+  gz::msgs::Set(msg_.mutable_pose(), *pose);
+  gz::msgs::Set(twist->mutable_angular(), v_angular_local);
+  gz::msgs::Set(twist->mutable_linear(), v_linear_local);
   odometry_pub_.Publish(msg_);
   PublishWorldLinearAcceleration(_ecm, stamp);
 }
 
 void PluginPrivate::PublishWorldLinearAcceleration(
-    const ignition::gazebo::EntityComponentManager &_ecm,
-    const ignition::msgs::Time &_stamp) {
-  ignition::msgs::Vector3d msg;
+    const gz::sim::EntityComponentManager &_ecm, const gz::msgs::Time &_stamp) {
+  gz::msgs::Vector3d msg;
 
   // set stamp and frame_id in header
   auto header = msg.mutable_header();
@@ -78,8 +77,8 @@ void PluginPrivate::PublishWorldLinearAcceleration(
   frame->add_value("map");
 
   // set linear acceleration vector
-  auto linear_acceleration = link_.WorldLinearAcceleration(_ecm).value_or(
-      ignition::math::Vector3d::Zero);
+  auto linear_acceleration =
+      link_.WorldLinearAcceleration(_ecm).value_or(gz::math::Vector3d::Zero);
   auto pose = link_.WorldPose(_ecm);
   auto linear_acceleration_local =
       pose->Rot().Inverse().RotateVector(linear_acceleration);
@@ -91,7 +90,7 @@ void PluginPrivate::PublishWorldLinearAcceleration(
 }
 
 void PluginPrivate::PublishAcceleration(
-    const ignition::gazebo::EntityComponentManager &_ecm,
+    const gz::sim::EntityComponentManager &_ecm,
     const std::chrono::steady_clock::duration &_sim_time) {
   auto dt = _sim_time - last_angular_velocity_pub_time_;
   if (dt > std::chrono::steady_clock::duration::zero() &&
@@ -100,35 +99,34 @@ void PluginPrivate::PublishAcceleration(
   }
   last_angular_velocity_pub_time_ = _sim_time;
 
-  ignition::msgs::Twist msg;
+  gz::msgs::Twist msg;
 
   auto header = msg.mutable_header();
-  auto stamp = ignition::gazebo::convert<ignition::msgs::Time>(_sim_time);
+  auto stamp = gz::sim::convert<gz::msgs::Time>(_sim_time);
   header->mutable_stamp()->CopyFrom(stamp);
   auto frame = header->add_data();
   frame->set_key("frame_id");
   frame->add_value(model_name_ + "/base_link");
 
   auto pose = link_.WorldPose(_ecm);
-  auto linear_acceleration = link_.WorldLinearAcceleration(_ecm).value_or(
-      ignition::math::Vector3d::Zero);
+  auto linear_acceleration =
+      link_.WorldLinearAcceleration(_ecm).value_or(gz::math::Vector3d::Zero);
   auto linear_acceleration_local =
       pose->Rot().Inverse().RotateVector(linear_acceleration);
   auto angular_acceleration = link_.WorldAngularAcceleration(_ecm);
   auto angular_acceleration_local =
       pose->Rot().Inverse().RotateVector(*angular_acceleration);
-  ignition::msgs::Set(msg.mutable_linear(), linear_acceleration_local);
-  ignition::msgs::Set(msg.mutable_angular(), angular_acceleration_local);
+  gz::msgs::Set(msg.mutable_linear(), linear_acceleration_local);
+  gz::msgs::Set(msg.mutable_angular(), angular_acceleration_local);
   accelerations_pub_.Publish(msg);
 }
 
 void PluginPrivate::Advertise() {
-  odometry_pub_ =
-      node_.Advertise<ignition::msgs::Odometry>(OdometryTopicName());
-  world_linear_acceleration_pub_ = node_.Advertise<ignition::msgs::Vector3d>(
-      WorldLinearAccelerationTopicName());
+  odometry_pub_ = node_.Advertise<gz::msgs::Odometry>(OdometryTopicName());
+  world_linear_acceleration_pub_ =
+      node_.Advertise<gz::msgs::Vector3d>(WorldLinearAccelerationTopicName());
   accelerations_pub_ =
-      node_.Advertise<ignition::msgs::Twist>(AccelerationsTopicName());
+      node_.Advertise<gz::msgs::Twist>(AccelerationsTopicName());
 }
 
 std::string PluginPrivate::OdometryTopicName() {
@@ -153,46 +151,40 @@ void PluginPrivate::InitHeader() {
   child_frame->add_value(model_name_ + "/base_link");
 }
 
-void PluginPrivate::InitComponents(
-    ignition::gazebo::EntityComponentManager &_ecm) {
-  link_ = ignition::gazebo::Link(model_.LinkByName(_ecm, sdf_params_.link));
+void PluginPrivate::InitComponents(gz::sim::EntityComponentManager &_ecm) {
+  link_ = gz::sim::Link(model_.LinkByName(_ecm, sdf_params_.link));
 
   // create component for world pose
-  if (!_ecm.Component<ignition::gazebo::components::WorldPose>(
-          link_.Entity())) {
-    _ecm.CreateComponent(link_.Entity(),
-                         ignition::gazebo::components::WorldPose());
+  if (!_ecm.Component<gz::sim::components::WorldPose>(link_.Entity())) {
+    _ecm.CreateComponent(link_.Entity(), gz::sim::components::WorldPose());
   }
 
   link_.EnableVelocityChecks(_ecm, true);
 
   // create component for angular velocity
-  if (!_ecm.Component<ignition::gazebo::components::AngularVelocity>(
-          link_.Entity())) {
+  if (!_ecm.Component<gz::sim::components::AngularVelocity>(link_.Entity())) {
     _ecm.CreateComponent(link_.Entity(),
-                         ignition::gazebo::components::AngularVelocity());
+                         gz::sim::components::AngularVelocity());
   }
 
   // create component for linear velocity
-  if (!_ecm.Component<ignition::gazebo::components::LinearVelocity>(
-          link_.Entity())) {
-    _ecm.CreateComponent(link_.Entity(),
-                         ignition::gazebo::components::LinearVelocity());
+  if (!_ecm.Component<gz::sim::components::LinearVelocity>(link_.Entity())) {
+    _ecm.CreateComponent(link_.Entity(), gz::sim::components::LinearVelocity());
   }
 
   // create component for linear acceleration
-  if (!_ecm.Component<ignition::gazebo::components::LinearAcceleration>(
+  if (!_ecm.Component<gz::sim::components::LinearAcceleration>(
           link_.Entity())) {
     _ecm.CreateComponent(link_.Entity(),
-                         ignition::gazebo::components::LinearAcceleration());
+                         gz::sim::components::LinearAcceleration());
   }
   link_.EnableAccelerationChecks(_ecm, true);
 
   // create component for angular acceleration
-  if (!_ecm.Component<ignition::gazebo::components::AngularAcceleration>(
+  if (!_ecm.Component<gz::sim::components::AngularAcceleration>(
           link_.Entity())) {
     _ecm.CreateComponent(link_.Entity(),
-                         ignition::gazebo::components::AngularAcceleration());
+                         gz::sim::components::AngularAcceleration());
   }
 }
 }  // namespace odometry

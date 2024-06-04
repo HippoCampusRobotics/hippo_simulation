@@ -1,21 +1,21 @@
 #pragma once
 
-#include <ignition/gazebo/System.hh>
+#include <gz/sim/System.hh>
 
 #include "buoyancy_private.hpp"
 
 namespace buoyancy {
-class Plugin : public ignition::gazebo::System,
-               public ignition::gazebo::ISystemConfigure,
-               public ignition::gazebo::ISystemUpdate {
+class Plugin : public gz::sim::System,
+               public gz::sim::ISystemConfigure,
+               public gz::sim::ISystemUpdate {
  public:
   Plugin();
-  void Configure(const ignition::gazebo::Entity &_entity,
+  void Configure(const gz::sim::Entity &_entity,
                  const std::shared_ptr<const sdf::Element> &_sdf,
-                 ignition::gazebo::EntityComponentManager &_ecm,
-                 ignition::gazebo::EventManager &_eventMgr) override;
-  void Update(const ignition::gazebo::UpdateInfo &_info,
-              ignition::gazebo::EntityComponentManager &_ecm) override;
+                 gz::sim::EntityComponentManager &_ecm,
+                 gz::sim::EventManager &_eventMgr) override;
+  void Update(const gz::sim::UpdateInfo &_info,
+              gz::sim::EntityComponentManager &_ecm) override;
 
  private:
   std::unique_ptr<PluginPrivate> private_;

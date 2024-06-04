@@ -1,4 +1,4 @@
-#include <ignition/common.hh>
+#include <gz/common.hh>
 #include <sdf/Element.hh>
 
 template <typename T>

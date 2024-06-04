@@ -22,13 +22,12 @@ void PluginPrivate::ParseSdf(const std::shared_ptr<const sdf::Element> &_sdf) {
                         sdf_params_.water_surface_offset)
           .first;
   sdf_params_.position =
-      _sdf->Get<ignition::math::Vector3d>("position", sdf_params_.position)
-          .first;
+      _sdf->Get<gz::math::Vector3d>("position", sdf_params_.position).first;
 }
 
-bool PluginPrivate::InitModel(ignition::gazebo::EntityComponentManager &_ecm,
-                              ignition::gazebo::Entity _entity) {
-  model_ = ignition::gazebo::Model(_entity);
+bool PluginPrivate::InitModel(gz::sim::EntityComponentManager &_ecm,
+                              gz::sim::Entity _entity) {
+  model_ = gz::sim::Model(_entity);
   if (!model_.Valid(_ecm)) {
     return false;
   }
@@ -38,10 +37,9 @@ bool PluginPrivate::InitModel(ignition::gazebo::EntityComponentManager &_ecm,
   return true;
 }
 
-void PluginPrivate::Publish(
-    const ignition::gazebo::EntityComponentManager &_ecm,
-    const ignition::msgs::Time &stamp) {
-  auto pose = link_.WorldPose(_ecm).value_or(ignition::math::Pose3d::Zero);
+void PluginPrivate::Publish(const gz::sim::EntityComponentManager &_ecm,
+                            const gz::msgs::Time &stamp) {
+  auto pose = link_.WorldPose(_ecm).value_or(gz::math::Pose3d::Zero);
   double offset = pose.Rot().RotateVector(sdf_params_.position).Z();
   double z = pose.Pos().Z() - sdf_params_.water_surface_offset + offset;
   if (z > 0) {
@@ -54,7 +52,7 @@ void PluginPrivate::Publish(
 }
 
 void PluginPrivate::Advertise() {
-  publisher_ = node_.Advertise<ignition::msgs::FluidPressure>(TopicName());
+  publisher_ = node_.Advertise<gz::msgs::FluidPressure>(TopicName());
 }
 
 std::string PluginPrivate::TopicName() {
@@ -68,23 +66,17 @@ void PluginPrivate::InitHeader() {
   frame->add_value("map");
 }
 
-void PluginPrivate::InitComponents(
-    ignition::gazebo::EntityComponentManager &_ecm) {
-  link_ = ignition::gazebo::Link(model_.LinkByName(_ecm, sdf_params_.link));
-  if (!_ecm.Component<ignition::gazebo::components::WorldPose>(
-          link_.Entity())) {
-    _ecm.CreateComponent(link_.Entity(),
-                         ignition::gazebo::components::WorldPose());
+void PluginPrivate::InitComponents(gz::sim::EntityComponentManager &_ecm) {
+  link_ = gz::sim::Link(model_.LinkByName(_ecm, sdf_params_.link));
+  if (!_ecm.Component<gz::sim::components::WorldPose>(link_.Entity())) {
+    _ecm.CreateComponent(link_.Entity(), gz::sim::components::WorldPose());
   }
-  if (!_ecm.Component<ignition::gazebo::components::AngularVelocity>(
-          link_.Entity())) {
+  if (!_ecm.Component<gz::sim::components::AngularVelocity>(link_.Entity())) {
     _ecm.CreateComponent(link_.Entity(),
-                         ignition::gazebo::components::AngularVelocity());
+                         gz::sim::components::AngularVelocity());
   }
-  if (!_ecm.Component<ignition::gazebo::components::LinearVelocity>(
-          link_.Entity())) {
-    _ecm.CreateComponent(link_.Entity(),
-                         ignition::gazebo::components::LinearVelocity());
+  if (!_ecm.Component<gz::sim::components::LinearVelocity>(link_.Entity())) {
+    _ecm.CreateComponent(link_.Entity(), gz::sim::components::LinearVelocity());
   }
 }
 }  // namespace barometer

@@ -1,0 +1,9 @@
+syntax = "proto3";
+package gz.hippo_gz_plugins;
+import "gz/hippo_gz_plugins/range_measurement.proto";
+import "gz/msgs/header.proto";
+
+message RangeMeasurementArray {
+  gz.msgs.Header header = 1;
+  repeated gz.hippo_gz_plugins.RangeMeasurement measurements = 2;
+}

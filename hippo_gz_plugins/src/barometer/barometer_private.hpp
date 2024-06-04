@@ -1,12 +1,12 @@
 #pragma once
-#include <ignition/msgs/fluid_pressure.pb.h>
+#include <gz/msgs/fluid_pressure.pb.h>
 
-#include <ignition/gazebo/Link.hh>
-#include <ignition/gazebo/Model.hh>
-#include <ignition/gazebo/components/AngularVelocity.hh>
-#include <ignition/gazebo/components/LinearVelocity.hh>
-#include <ignition/gazebo/components/Pose.hh>
-#include <ignition/transport/Node.hh>
+#include <gz/sim/Link.hh>
+#include <gz/sim/Model.hh>
+#include <gz/sim/components/AngularVelocity.hh>
+#include <gz/sim/components/LinearVelocity.hh>
+#include <gz/sim/components/Pose.hh>
+#include <gz/transport/Node.hh>
 #include <sdf/Element.hh>
 
 namespace barometer {
@@ -14,10 +14,10 @@ class PluginPrivate {
  public:
   void ParseSdf(const std::shared_ptr<const sdf::Element> &_sdf);
 
-  bool InitModel(ignition::gazebo::EntityComponentManager &_ecm,
-                 ignition::gazebo::Entity _entity);
-  void Publish(const ignition::gazebo::EntityComponentManager &_ecm,
-               const ignition::msgs::Time &stamp);
+  bool InitModel(gz::sim::EntityComponentManager &_ecm,
+                 gz::sim::Entity _entity);
+  void Publish(const gz::sim::EntityComponentManager &_ecm,
+               const gz::msgs::Time &stamp);
   void Advertise();
 
   std::chrono::steady_clock::duration update_period_{0};
@@ -30,18 +30,18 @@ class PluginPrivate {
     std::string base_topic{"pressure"};
     double atmospheric_pressure{101325.0};
     double water_surface_offset{0.0};
-    ignition::math::Vector3d position{-1.0, 0.0, 0.0};
+    gz::math::Vector3d position{-1.0, 0.0, 0.0};
   } sdf_params_;
 
   void InitHeader();
-  void InitComponents(ignition::gazebo::EntityComponentManager &_ecm);
+  void InitComponents(gz::sim::EntityComponentManager &_ecm);
   std::string TopicName();
 
-  ignition::gazebo::Model model_{ignition::gazebo::kNullEntity};
+  gz::sim::Model model_{gz::sim::kNullEntity};
   std::string model_name_ = "unknown_model_name";
-  ignition::gazebo::Link link_{ignition::gazebo::kNullEntity};
-  ignition::transport::Node node_;
-  ignition::transport::Node::Publisher publisher_;
-  ignition::msgs::FluidPressure msg_;
+  gz::sim::Link link_{gz::sim::kNullEntity};
+  gz::transport::Node node_;
+  gz::transport::Node::Publisher publisher_;
+  gz::msgs::FluidPressure msg_;
 };
 }  // namespace barometer

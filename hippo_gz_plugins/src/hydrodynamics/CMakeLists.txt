@@ -2,10 +2,15 @@ set(lib_name hydrodynamics)
 add_library(${lib_name} SHARED
   hydrodynamics.cpp
 )
+target_link_libraries(${lib_name}
+  gz-plugin::core
+  gz-sim::core
+  gz-common::core
+)
 ament_target_dependencies(${lib_name}
-  ignition-plugin${GZ_PLUGIN_VER}
-  ignition-gazebo${GZ_GAZEBO_VER}
-  ignition-common${GZ_COMMON_VER}
+  gz-plugin
+  gz-sim
+  gz-common
 )
 
 install(TARGETS ${lib_name}

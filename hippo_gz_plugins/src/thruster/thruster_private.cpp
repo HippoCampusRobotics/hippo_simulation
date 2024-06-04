@@ -1,10 +1,10 @@
 #include "thruster_private.hpp"
 
-#include <ignition/gazebo/components/ExternalWorldWrenchCmd.hh>
-#include <ignition/gazebo/components/JointVelocity.hh>
-#include <ignition/gazebo/components/JointVelocityCmd.hh>
-#include <ignition/gazebo/components/ParentLinkName.hh>
-#include <ignition/gazebo/components/Pose.hh>
+#include <gz/sim/components/ExternalWorldWrenchCmd.hh>
+#include <gz/sim/components/JointVelocity.hh>
+#include <gz/sim/components/JointVelocityCmd.hh>
+#include <gz/sim/components/ParentLinkName.hh>
+#include <gz/sim/components/Pose.hh>
 
 #include "common.hpp"
 
@@ -48,9 +48,9 @@ void PluginPrivate::ParseSdf(const std::shared_ptr<const sdf::Element> &_sdf) {
   AssignSdfParam(_sdf, "timeconstant_down", sdf_params_.timeconstant_down);
 }
 
-bool PluginPrivate::InitModel(ignition::gazebo::EntityComponentManager &_ecm,
-                              ignition::gazebo::Entity _entity) {
-  model_ = ignition::gazebo::Model(_entity);
+bool PluginPrivate::InitModel(gz::sim::EntityComponentManager &_ecm,
+                              gz::sim::Entity _entity) {
+  model_ = gz::sim::Model(_entity);
   if (!model_.Valid(_ecm)) {
     return false;
   }
@@ -62,8 +62,7 @@ bool PluginPrivate::InitModel(ignition::gazebo::EntityComponentManager &_ecm,
   return true;
 }
 
-void PluginPrivate::ApplyWrench(
-    ignition::gazebo::EntityComponentManager &_ecm) {
+void PluginPrivate::ApplyWrench(gz::sim::EntityComponentManager &_ecm) {
   if (!_ecm.HasEntity(link_.Entity())) {
     // ignerr << "Entity not exsting/deleted.";
     return;
@@ -74,18 +73,17 @@ void PluginPrivate::ApplyWrench(
   link_.AddWorldForce(_ecm, pose->Rot().RotateVector(ThrusterForce()));
 
   auto parent_wrench_component =
-      _ecm.Component<ignition::gazebo::components::ExternalWorldWrenchCmd>(
+      _ecm.Component<gz::sim::components::ExternalWorldWrenchCmd>(
           parent_link_.Entity());
   auto parent_torque = pose_diff.Rot().RotateVector(Torque());
   auto parent_torque_world = parent_pose->Rot().RotateVector(parent_torque);
-  ignition::msgs::Set(
-      parent_wrench_component->Data().mutable_torque(),
-      ignition::msgs::Convert(parent_wrench_component->Data().torque()) +
-          parent_torque_world);
+  gz::msgs::Set(parent_wrench_component->Data().mutable_torque(),
+                gz::msgs::Convert(parent_wrench_component->Data().torque()) +
+                    parent_torque_world);
 }
 
-void PluginPrivate::UpdateRotorVelocity(
-    ignition::gazebo::EntityComponentManager &_ecm, double _dt) {
+void PluginPrivate::UpdateRotorVelocity(gz::sim::EntityComponentManager &_ecm,
+                                        double _dt) {
   {
     std::lock_guard<std::mutex> lock(thrust_cmd_mutex_);
     rotor_velocity_ =
@@ -98,9 +96,9 @@ void PluginPrivate::UpdateRotorVelocity(
  * @brief Computes thruster force  as T(x) = a * x² + b * x, where x is
  * rotations per second. The sign also depends on the propeller direction.
  *
- * @return ignition::math::Vector3d
+ * @return gz::math::Vector3d
  */
-ignition::math::Vector3d PluginPrivate::ThrusterForce() {
+gz::math::Vector3d PluginPrivate::ThrusterForce() {
   double thrust;
   // get rotations per second
   double tmp = std::abs(rotor_velocity_ / 6.28);
@@ -111,19 +109,18 @@ ignition::math::Vector3d PluginPrivate::ThrusterForce() {
     thrust *= -1.0;
   }
   double force = propeller_direction_ * thrust;
-  return ignition::math::Vector3d(force, 0, 0);
+  return gz::math::Vector3d(force, 0, 0);
 }
 
-ignition::math::Vector3d PluginPrivate::Torque() {
+gz::math::Vector3d PluginPrivate::Torque() {
   return turning_direction_ * propeller_direction_ * ThrusterForce() *
          sdf_params_.torque_coeff;
 }
 
-void PluginPrivate::SetRotorVelocity(
-    ignition::gazebo::EntityComponentManager &_ecm, double _velocity) {
+void PluginPrivate::SetRotorVelocity(gz::sim::EntityComponentManager &_ecm,
+                                     double _velocity) {
   auto velocity_component =
-      _ecm.Component<ignition::gazebo::components::JointVelocityCmd>(
-          joint_entity_);
+      _ecm.Component<gz::sim::components::JointVelocityCmd>(joint_entity_);
   if (!velocity_component) {
     // ignerr << "Missing JointVelocityCmd component!" << std::endl;
     return;
@@ -134,10 +131,9 @@ void PluginPrivate::SetRotorVelocity(
 }
 
 double PluginPrivate::RotorVelocity(
-    const ignition::gazebo::EntityComponentManager &_ecm) {
+    const gz::sim::EntityComponentManager &_ecm) {
   auto velocity_component =
-      _ecm.Component<ignition::gazebo::components::JointVelocity>(
-          joint_entity_);
+      _ecm.Component<gz::sim::components::JointVelocity>(joint_entity_);
   if (!velocity_component) {
     // ignerr << "Joint has no JointVelocity component!" << std::endl;
     return 0.0;
@@ -149,16 +145,15 @@ double PluginPrivate::RotorVelocity(
   return 0.0;
 }
 
-void PluginPrivate::PublishRpm(
-    const ignition::gazebo::EntityComponentManager &_ecm) {
-  ignition::msgs::Double msg;
+void PluginPrivate::PublishRpm(const gz::sim::EntityComponentManager &_ecm) {
+  gz::msgs::Double msg;
   msg.set_data(RotorVelocity(_ecm));
   rpm_publisher_.Publish(msg);
 }
 
 void PluginPrivate::PublishThrust() {
-  ignition::math::Vector3d f = ThrusterForce();
-  ignition::msgs::Double msg;
+  gz::math::Vector3d f = ThrusterForce();
+  gz::msgs::Double msg;
   msg.set_data(f.X());
   thrust_publisher_.Publish(msg);
 }
@@ -168,65 +163,58 @@ void PluginPrivate::ThrottleCmdTimedOut() {
   rotor_velocity_setpoint_ = 0.0;
 }
 
-void PluginPrivate::OnThrottleCmd(const ignition::msgs::Double &_msg) {
+void PluginPrivate::OnThrottleCmd(const gz::msgs::Double &_msg) {
   std::lock_guard<std::mutex> lock(thrust_cmd_mutex_);
   rotor_velocity_setpoint_ = ThrottleToVelocity(_msg.data());
   throttle_cmd_updated_ = true;
 }
 
-void PluginPrivate::InitComponents(
-    ignition::gazebo::EntityComponentManager &_ecm) {
+void PluginPrivate::InitComponents(gz::sim::EntityComponentManager &_ecm) {
   //////////////////////////////////////////////////////////////////////////////
   // joint components
   //////////////////////////////////////////////////////////////////////////////
   joint_entity_ = model_.JointByName(_ecm, sdf_params_.joint);
-  if (joint_entity_ == ignition::gazebo::kNullEntity) {
+  if (joint_entity_ == gz::sim::kNullEntity) {
     ignerr << "Joint with name [" << sdf_params_.joint << "] not found!"
            << std::endl;
     return;
   }
 
-  if (!_ecm.Component<ignition::gazebo::components::JointVelocity>(
-          joint_entity_)) {
+  if (!_ecm.Component<gz::sim::components::JointVelocity>(joint_entity_)) {
     _ecm.CreateComponent(joint_entity_,
-                         ignition::gazebo::components::JointVelocity({0.0}));
+                         gz::sim::components::JointVelocity({0.0}));
   }
 
-  if (!_ecm.Component<ignition::gazebo::components::JointVelocityCmd>(
-          joint_entity_)) {
+  if (!_ecm.Component<gz::sim::components::JointVelocityCmd>(joint_entity_)) {
     _ecm.CreateComponent(joint_entity_,
-                         ignition::gazebo::components::JointVelocityCmd({0.0}));
+                         gz::sim::components::JointVelocityCmd({0.0}));
   }
 
   //////////////////////////////////////////////////////////////////////////////
   // thruster link
   //////////////////////////////////////////////////////////////////////////////
-  link_ = ignition::gazebo::Link(model_.LinkByName(_ecm, sdf_params_.link));
-  if (!_ecm.Component<ignition::gazebo::components::WorldPose>(
-          link_.Entity())) {
-    _ecm.CreateComponent(link_.Entity(),
-                         ignition::gazebo::components::WorldPose());
+  link_ = gz::sim::Link(model_.LinkByName(_ecm, sdf_params_.link));
+  if (!_ecm.Component<gz::sim::components::WorldPose>(link_.Entity())) {
+    _ecm.CreateComponent(link_.Entity(), gz::sim::components::WorldPose());
   }
 
   //////////////////////////////////////////////////////////////////////////////
   // parent link components
   //////////////////////////////////////////////////////////////////////////////
   std::string parent_name =
-      _ecm.Component<ignition::gazebo::components::ParentLinkName>(
-              joint_entity_)
+      _ecm.Component<gz::sim::components::ParentLinkName>(joint_entity_)
           ->Data();
   auto parent_entity = model_.LinkByName(_ecm, parent_name);
-  parent_link_ = ignition::gazebo::Link(parent_entity);
+  parent_link_ = gz::sim::Link(parent_entity);
 
-  if (!_ecm.Component<ignition::gazebo::components::WorldPose>(parent_entity)) {
-    _ecm.CreateComponent(parent_entity,
-                         ignition::gazebo::components::WorldPose());
+  if (!_ecm.Component<gz::sim::components::WorldPose>(parent_entity)) {
+    _ecm.CreateComponent(parent_entity, gz::sim::components::WorldPose());
   }
 
-  if (!_ecm.Component<ignition::gazebo::components::ExternalWorldWrenchCmd>(
+  if (!_ecm.Component<gz::sim::components::ExternalWorldWrenchCmd>(
           parent_entity)) {
-    _ecm.CreateComponent(
-        parent_entity, ignition::gazebo::components::ExternalWorldWrenchCmd());
+    _ecm.CreateComponent(parent_entity,
+                         gz::sim::components::ExternalWorldWrenchCmd());
   }
 }
 }  // namespace thruster

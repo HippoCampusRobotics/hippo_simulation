@@ -1,24 +1,24 @@
 #include "pose.hpp"
 
-#include <ignition/msgs/pose.pb.h>
+#include <gz/msgs/pose.pb.h>
 
-#include <ignition/gazebo/Conversions.hh>
-#include <ignition/gazebo/Link.hh>
-#include <ignition/gazebo/Model.hh>
-#include <ignition/gazebo/components/Pose.hh>
-#include <ignition/plugin/Register.hh>
-#include <ignition/transport/Node.hh>
+#include <gz/msgs.hh>
+#include <gz/plugin/Register.hh>
+#include <gz/sim/Conversions.hh>
+#include <gz/sim/Link.hh>
+#include <gz/sim/Model.hh>
+#include <gz/sim/components/Pose.hh>
+#include <gz/transport/Node.hh>
 #define SDF_MISSING_ELEMENT(x) \
   (ignerr << "Could not find [" << x << "] element in sdf." << std::endl)
 
-IGNITION_ADD_PLUGIN(pose::PosePlugin, ignition::gazebo::System,
-                    pose::PosePlugin::ISystemConfigure,
-                    pose::PosePlugin::ISystemPostUpdate)
-IGNITION_ADD_PLUGIN_ALIAS(pose::PosePlugin, "hippo_gz_plugins::pose")
+GZ_ADD_PLUGIN(pose::PosePlugin, gz::sim::System,
+              pose::PosePlugin::ISystemConfigure,
+              pose::PosePlugin::ISystemPostUpdate)
+GZ_ADD_PLUGIN_ALIAS(pose::PosePlugin, "hippo_gz_plugins::pose")
 
 using namespace pose;
-using namespace ignition;
-using namespace gazebo;
+using namespace gz;
 
 class pose::PosePluginPrivate {
  public:
@@ -39,8 +39,9 @@ class pose::PosePluginPrivate {
     }
   }
 
-  bool InitModel(EntityComponentManager &_ecm, Entity _entity) {
-    model_ = Model(_entity);
+  bool InitModel(gz::sim::EntityComponentManager &_ecm,
+                 gz::sim::Entity _entity) {
+    model_ = gz::sim::Model(_entity);
     if (!model_.Valid(_ecm)) {
       return false;
     }
@@ -50,12 +51,12 @@ class pose::PosePluginPrivate {
     return true;
   }
 
-  void PublishPose(const EntityComponentManager &_ecm,
-                   const msgs::Time &stamp) {
+  void PublishPose(const gz::sim::EntityComponentManager &_ecm,
+                   const gz::msgs::Time &stamp) {
     auto pose = link_.WorldPose(_ecm);
     auto header = pose_msg_.mutable_header();
     header->mutable_stamp()->CopyFrom(stamp);
-    msgs::Set(&pose_msg_, *pose);
+    gz::msgs::Set(&pose_msg_, *pose);
     pose_pub_.Publish(pose_msg_);
   }
 
@@ -85,16 +86,16 @@ class pose::PosePluginPrivate {
 
   std::string LinkName() { return sdf_params_.link; }
 
-  void InitEntities(EntityComponentManager &_ecm) {
-    link_ = Link(model_.LinkByName(_ecm, sdf_params_.link));
-    if (!_ecm.Component<components::WorldPose>(link_.Entity())) {
-      _ecm.CreateComponent(link_.Entity(), components::WorldPose());
+  void InitEntities(gz::sim::EntityComponentManager &_ecm) {
+    link_ = gz::sim::Link(model_.LinkByName(_ecm, sdf_params_.link));
+    if (!_ecm.Component<gz::sim::components::WorldPose>(link_.Entity())) {
+      _ecm.CreateComponent(link_.Entity(), gz::sim::components::WorldPose());
     }
   }
 
-  ignition::gazebo::Model model_{kNullEntity};
+  gz::sim::Model model_{gz::sim::kNullEntity};
   std::string model_name_ = "unknown_model_name";
-  Link link_{kNullEntity};
+  gz::sim::Link link_{gz::sim::kNullEntity};
   transport::Node node_;
   transport::Node::Publisher pose_pub_;
   msgs::Pose pose_msg_;
@@ -103,11 +104,10 @@ class pose::PosePluginPrivate {
 PosePlugin::PosePlugin()
     : System(), private_(std::make_unique<PosePluginPrivate>()) {}
 
-void PosePlugin::Configure(
-    const ignition::gazebo::Entity &_entity,
-    const std::shared_ptr<const sdf::Element> &_sdf,
-    ignition::gazebo::EntityComponentManager &_ecm,
-    [[maybe_unused]] ignition::gazebo::EventManager &_eventMgr) {
+void PosePlugin::Configure(const gz::sim::Entity &_entity,
+                           const std::shared_ptr<const sdf::Element> &_sdf,
+                           gz::sim::EntityComponentManager &_ecm,
+                           [[maybe_unused]] gz::sim::EventManager &_eventMgr) {
   private_->ParseSdf(_sdf);
   if (!private_->InitModel(_ecm, _entity)) {
     ignerr << "PosePlugin needs to be attached to model entity." << std::endl;
@@ -115,9 +115,8 @@ void PosePlugin::Configure(
   }
   private_->Advertise();
 }
-void PosePlugin::PostUpdate(
-    const ignition::gazebo::UpdateInfo &_info,
-    const ignition::gazebo::EntityComponentManager &_ecm) {
+void PosePlugin::PostUpdate(const gz::sim::UpdateInfo &_info,
+                            const gz::sim::EntityComponentManager &_ecm) {
   if (_info.paused) {
     return;
   }
@@ -129,5 +128,5 @@ void PosePlugin::PostUpdate(
   }
 
   private_->last_pub_time_ = _info.simTime;
-  private_->PublishPose(_ecm, convert<msgs::Time>(_info.simTime));
+  private_->PublishPose(_ecm, gz::sim::convert<msgs::Time>(_info.simTime));
 }

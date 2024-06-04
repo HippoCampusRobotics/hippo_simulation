@@ -1,10 +1,10 @@
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <geometry_msgs/msg/vector3_stamped.hpp>
+#include <gz/transport/Node.hh>
 #include <hippo_control_msgs/msg/actuator_controls.hpp>
 #include <hippo_control_msgs/msg/thruster_forces.hpp>
 #include <hippo_msgs/msg/angular_velocity.hpp>
 #include <hippo_msgs/msg/esc_rpms.hpp>
-#include <ignition/transport/Node.hh>
 #include <rclcpp/experimental/executors/events_executor/events_executor.hpp>
 #include <rclcpp/node_interfaces/node_topics.hpp>
 #include <rclcpp/rclcpp.hpp>
@@ -16,9 +16,9 @@ using namespace sensor_msgs::msg;
 using namespace std_msgs::msg;
 using namespace hippo_msgs::msg;
 using namespace hippo_control_msgs::msg;
-using namespace ignition;
+using namespace gz;
 using namespace nav_msgs::msg;
-namespace gz_msgs = ignition::msgs;
+namespace gz_msgs = gz::msgs;
 using std::placeholders::_1;
 
 class Bridge {

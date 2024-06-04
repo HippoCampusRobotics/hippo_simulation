@@ -1,9 +1,9 @@
 #include "range_sensor_private.hpp"
 
 #include <gz/sim/Util.hh>
-#include <ignition/gazebo/components/Model.hh>
-#include <ignition/gazebo/components/Name.hh>
-#include <ignition/gazebo/components/Pose.hh>
+#include <gz/sim/components/Model.hh>
+#include <gz/sim/components/Name.hh>
+#include <gz/sim/components/Pose.hh>
 
 #include "common.hpp"
 
@@ -60,9 +60,9 @@ void PluginPrivate::ParseSdf(const std::shared_ptr<const sdf::Element> &_sdf) {
   AssignSdfParam(_sdf, "rotation", sdf_params_.rotation);
 }
 
-bool PluginPrivate::InitModel(ignition::gazebo::EntityComponentManager &_ecm,
-                              ignition::gazebo::Entity _entity) {
-  model_ = ignition::gazebo::Model(_entity);
+bool PluginPrivate::InitModel(gz::sim::EntityComponentManager &_ecm,
+                              gz::sim::Entity _entity) {
+  model_ = gz::sim::Model(_entity);
   if (!model_.Valid(_ecm)) {
     return false;
   }
@@ -72,8 +72,7 @@ bool PluginPrivate::InitModel(ignition::gazebo::EntityComponentManager &_ecm,
 }
 
 std::optional<double> PluginPrivate::GetRange(
-    TargetModel &_target,
-    const ignition::gazebo::EntityComponentManager &_ecm) {
+    TargetModel &_target, const gz::sim::EntityComponentManager &_ecm) {
   if (!_target.active) {
     return std::nullopt;
   }
@@ -88,52 +87,48 @@ std::optional<double> PluginPrivate::GetRange(
     _target.active = false;
     return std::nullopt;
   }
-  ignition::math::Vector3<double> diff = (*pose).Pos() - (*target_pose).Pos();
+  gz::math::Vector3<double> diff = (*pose).Pos() - (*target_pose).Pos();
   return diff.Length();
 }
 
-std::optional<ignition::math::Pose3d> PluginPrivate::GetPose(
-    const ignition::gazebo::EntityComponentManager &_ecm) {
+std::optional<gz::math::Pose3d> PluginPrivate::GetPose(
+    const gz::sim::EntityComponentManager &_ecm) {
   auto pose = link_.WorldPose(_ecm);
   if (pose) {
     pose->Pos() += pose->Rot().RotateVector(sdf_params_.translation);
-    ignition::math::Quaterniond q{sdf_params_.rotation};
+    gz::math::Quaterniond q{sdf_params_.rotation};
     pose->Rot() = q * pose->Rot();
   }
   return link_.WorldPose(_ecm);
 }
 
-std::optional<ignition::math::Pose3d> PluginPrivate::GetTargetPose(
-    const ignition::gazebo::EntityComponentManager &_ecm,
-    const TargetModel &_target) {
-  ignition::gazebo::Entity model =
-      _ecm.EntityByComponents(ignition::gazebo::components::Name(_target.name),
-                              ignition::gazebo::components::Model());
-  if (model == ignition::gazebo::kNullEntity) {
+std::optional<gz::math::Pose3d> PluginPrivate::GetTargetPose(
+    const gz::sim::EntityComponentManager &_ecm, const TargetModel &_target) {
+  gz::sim::Entity model = _ecm.EntityByComponents(
+      gz::sim::components::Name(_target.name), gz::sim::components::Model());
+  if (model == gz::sim::kNullEntity) {
     return std::nullopt;
   }
-  ignition::math::Pose3d pose = ignition::gazebo::worldPose(model, _ecm);
+  gz::math::Pose3d pose = gz::sim::worldPose(model, _ecm);
   return pose;
 }
 
-bool PluginPrivate::DropMeasurement(
-    const ignition::gazebo::EntityComponentManager &_ecm,
-    const TargetModel &_target) {
+bool PluginPrivate::DropMeasurement(const gz::sim::EntityComponentManager &_ecm,
+                                    const TargetModel &_target) {
   auto target_pose = GetTargetPose(_ecm, _target);
   auto pose = GetPose(_ecm);
 
   if (!(target_pose && pose)) {
     return true;
   }
-  ignition::math::Vector3d target_vec =
+  gz::math::Vector3d target_vec =
       target_pose.value().Pos() - pose.value().Pos();
 
-  ignition::math::Vector3d target_normal_vec =
-      target_pose.value().Rot().RotateVector(-1.0 *
-                                             ignition::math::Vector3d::UnitZ);
+  gz::math::Vector3d target_normal_vec =
+      target_pose.value().Rot().RotateVector(-1.0 * gz::math::Vector3d::UnitZ);
 
-  ignition::math::Vector3d normal_vec =
-      pose.value().Rot().RotateVector(ignition::math::Vector3d::UnitX);
+  gz::math::Vector3d normal_vec =
+      pose.value().Rot().RotateVector(gz::math::Vector3d::UnitX);
 
   double fov_angle = acos(target_vec.Dot(normal_vec) /
                           (target_vec.Length() * normal_vec.Length()));
@@ -160,12 +155,11 @@ double PluginPrivate::DistanceDropProbability(double _distance) {
 }
 
 void PluginPrivate::UpdateTargetComponents(
-    ignition::gazebo::EntityComponentManager &_ecm) {
+    gz::sim::EntityComponentManager &_ecm) {
   for (auto &target : sdf_params_.target_models) {
-    ignition::gazebo::Entity model =
-        _ecm.EntityByComponents(ignition::gazebo::components::Name(target.name),
-                                ignition::gazebo::components::Model());
-    if (model == ignition::gazebo::kNullEntity) {
+    gz::sim::Entity model = _ecm.EntityByComponents(
+        gz::sim::components::Name(target.name), gz::sim::components::Model());
+    if (model == gz::sim::kNullEntity) {
       target.active = false;
       return;
     }
@@ -173,29 +167,26 @@ void PluginPrivate::UpdateTargetComponents(
   }
 }
 
-void PluginPrivate::InitComponents(
-    ignition::gazebo::EntityComponentManager &_ecm) {
-  link_ = ignition::gazebo::Link(model_.LinkByName(_ecm, sdf_params_.link));
+void PluginPrivate::InitComponents(gz::sim::EntityComponentManager &_ecm) {
+  link_ = gz::sim::Link(model_.LinkByName(_ecm, sdf_params_.link));
   if (!link_.Valid(_ecm)) {
     ignerr << "Link not available: " << sdf_params_.link << std::endl;
     return;
   }
-  if (!_ecm.Component<ignition::gazebo::components::WorldPose>(
-          link_.Entity())) {
-    _ecm.CreateComponent(link_.Entity(),
-                         ignition::gazebo::components::WorldPose());
+  if (!_ecm.Component<gz::sim::components::WorldPose>(link_.Entity())) {
+    _ecm.CreateComponent(link_.Entity(), gz::sim::components::WorldPose());
   }
 }
 
 void PluginPrivate::PublishRanges(
-    const ignition::gazebo::EntityComponentManager &_ecm,
+    const gz::sim::EntityComponentManager &_ecm,
     const std::chrono::steady_clock::duration &_sim_time) {
   auto dt = _sim_time - last_pub_time_;
   if (dt > std::chrono::steady_clock::duration::zero() && dt < update_period_) {
     return;
   }
   last_pub_time_ = _sim_time;
-  hippo_gz_msgs::msg::RangeMeasurementArray range_array;
+  gz::hippo_gz_plugins::RangeMeasurementArray range_array;
   for (auto &target : sdf_params_.target_models) {
     auto range = GetRange(target, _ecm);
     if (!range) {
@@ -204,7 +195,8 @@ void PluginPrivate::PublishRanges(
     if (DropMeasurement(_ecm, target)) {
       continue;
     }
-    hippo_gz_msgs::msg::RangeMeasurement *meas = range_array.add_measurements();
+    gz::hippo_gz_plugins::RangeMeasurement *meas =
+        range_array.add_measurements();
     meas->set_id(target.id);
     meas->set_range(range.value());
   }

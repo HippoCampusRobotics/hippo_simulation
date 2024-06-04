@@ -1,11 +1,11 @@
-#include <ignition/msgs/double.pb.h>
+#include <gz/msgs/double.pb.h>
 
-#include <ignition/gazebo/Link.hh>
-#include <ignition/gazebo/Model.hh>
-#include <ignition/gazebo/components/AngularVelocity.hh>
-#include <ignition/gazebo/components/LinearVelocity.hh>
-#include <ignition/gazebo/components/Pose.hh>
-#include <ignition/transport/Node.hh>
+#include <gz/sim/Link.hh>
+#include <gz/sim/Model.hh>
+#include <gz/sim/components/AngularVelocity.hh>
+#include <gz/sim/components/LinearVelocity.hh>
+#include <gz/sim/components/Pose.hh>
+#include <gz/transport/Node.hh>
 #include <sdf/Element.hh>
 
 namespace thruster {
@@ -37,24 +37,22 @@ class PluginPrivate {
  public:
   void ParseSdf(const std::shared_ptr<const sdf::Element> &_sdf);
 
-  bool InitModel(ignition::gazebo::EntityComponentManager &_ecm,
-                 ignition::gazebo::Entity _entity);
-  void PublishRpm(const ignition::gazebo::EntityComponentManager &_ecm);
+  bool InitModel(gz::sim::EntityComponentManager &_ecm,
+                 gz::sim::Entity _entity);
+  void PublishRpm(const gz::sim::EntityComponentManager &_ecm);
   void PublishThrust();
   void AdvertiseRpm() {
-    rpm_publisher_ = node_.Advertise<ignition::msgs::Double>(RpmTopicName());
+    rpm_publisher_ = node_.Advertise<gz::msgs::Double>(RpmTopicName());
   }
   void AdvertiseThrust() {
-    thrust_publisher_ =
-        node_.Advertise<ignition::msgs::Double>(ThrustTopicName());
+    thrust_publisher_ = node_.Advertise<gz::msgs::Double>(ThrustTopicName());
   }
   void SubscribeThrottleCmd() {
     node_.Subscribe(ThrottleCmdTopicName(), &PluginPrivate::OnThrottleCmd,
                     this);
   }
-  void UpdateRotorVelocity(ignition::gazebo::EntityComponentManager &_ecm,
-                           double dt);
-  void ApplyWrench(ignition::gazebo::EntityComponentManager &_ecm);
+  void UpdateRotorVelocity(gz::sim::EntityComponentManager &_ecm, double dt);
+  void ApplyWrench(gz::sim::EntityComponentManager &_ecm);
   void ThrottleCmdTimedOut();
 
   std::chrono::steady_clock::duration update_period_{0};
@@ -83,7 +81,7 @@ class PluginPrivate {
     double timeconstant_down{0.0};
   } sdf_params_;
 
-  void OnThrottleCmd(const ignition::msgs::Double &_msg);
+  void OnThrottleCmd(const gz::msgs::Double &_msg);
   /**
    * @brief Assumes throttle [-1; 1] maps linearily to velocity
    * [-max_rotations_per_second, max_rotations_per_second]
@@ -99,7 +97,7 @@ class PluginPrivate {
     return _throttle * turning_direction_ * sdf_params_.maximum_rpm / 60.0 *
            3.14 * 2;
   }
-  void InitComponents(ignition::gazebo::EntityComponentManager &_ecm);
+  void InitComponents(gz::sim::EntityComponentManager &_ecm);
   std::string ThrottleCmdTopicName() {
     return TopicPrefix() + "/" + sdf_params_.throttle_cmd_base_topic;
   }
@@ -113,11 +111,10 @@ class PluginPrivate {
     return "/" + model_name_ + "/" + "thruster_" +
            std::to_string(sdf_params_.thruster_number);
   }
-  ignition::math::Vector3d ThrusterForce();
-  ignition::math::Vector3d Torque();
-  void SetRotorVelocity(ignition::gazebo::EntityComponentManager &_ecm,
-                        double velocity);
-  double RotorVelocity(const ignition::gazebo::EntityComponentManager &_ecm);
+  gz::math::Vector3d ThrusterForce();
+  gz::math::Vector3d Torque();
+  void SetRotorVelocity(gz::sim::EntityComponentManager &_ecm, double velocity);
+  double RotorVelocity(const gz::sim::EntityComponentManager &_ecm);
 
   std::mutex thrust_cmd_mutex_;
 
@@ -128,15 +125,15 @@ class PluginPrivate {
   double rotor_velocity_setpoint_{0.0};
   double rotor_velocity_{0.0};
 
-  ignition::gazebo::Model model_{ignition::gazebo::kNullEntity};
+  gz::sim::Model model_{gz::sim::kNullEntity};
   std::string model_name_ = "unknown_model_name";
-  ignition::gazebo::Link parent_link_{ignition::gazebo::kNullEntity};
-  ignition::gazebo::Link link_{ignition::gazebo::kNullEntity};
-  ignition::gazebo::Entity joint_entity_{ignition::gazebo::kNullEntity};
+  gz::sim::Link parent_link_{gz::sim::kNullEntity};
+  gz::sim::Link link_{gz::sim::kNullEntity};
+  gz::sim::Entity joint_entity_{gz::sim::kNullEntity};
 
-  ignition::transport::Node node_;
-  ignition::transport::Node::Publisher rpm_publisher_;
-  ignition::transport::Node::Publisher thrust_publisher_;
+  gz::transport::Node node_;
+  gz::transport::Node::Publisher rpm_publisher_;
+  gz::transport::Node::Publisher thrust_publisher_;
 };
 
 }  // namespace thruster

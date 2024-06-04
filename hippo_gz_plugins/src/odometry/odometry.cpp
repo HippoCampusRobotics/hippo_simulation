@@ -1,21 +1,20 @@
 #include "odometry.hpp"
 
-#include <ignition/gazebo/Conversions.hh>
-#include <ignition/plugin/Register.hh>
+#include <gz/plugin/Register.hh>
+#include <gz/sim/Conversions.hh>
 
-IGNITION_ADD_PLUGIN(odometry::Plugin, ignition::gazebo::System,
-                    odometry::Plugin::ISystemConfigure,
-                    odometry::Plugin::ISystemPostUpdate)
-IGNITION_ADD_PLUGIN_ALIAS(odometry::Plugin, "hippo_gz_plugins::odometry")
+GZ_ADD_PLUGIN(odometry::Plugin, gz::sim::System,
+              odometry::Plugin::ISystemConfigure,
+              odometry::Plugin::ISystemPostUpdate)
+GZ_ADD_PLUGIN_ALIAS(odometry::Plugin, "hippo_gz_plugins::odometry")
 
 namespace odometry {
 Plugin::Plugin() : System(), private_(std::make_unique<PluginPrivate>()) {}
 
-void Plugin::Configure(
-    const ignition::gazebo::Entity &_entity,
-    const std::shared_ptr<const sdf::Element> &_sdf,
-    ignition::gazebo::EntityComponentManager &_ecm,
-    [[maybe_unused]] ignition::gazebo::EventManager &_eventMgr) {
+void Plugin::Configure(const gz::sim::Entity &_entity,
+                       const std::shared_ptr<const sdf::Element> &_sdf,
+                       gz::sim::EntityComponentManager &_ecm,
+                       [[maybe_unused]] gz::sim::EventManager &_eventMgr) {
   private_->ParseSdf(_sdf);
   if (!private_->InitModel(_ecm, _entity)) {
     ignerr << "Plugin needs to be attached to model entity." << std::endl;
@@ -23,8 +22,8 @@ void Plugin::Configure(
   }
   private_->Advertise();
 }
-void Plugin::PostUpdate(const ignition::gazebo::UpdateInfo &_info,
-                        const ignition::gazebo::EntityComponentManager &_ecm) {
+void Plugin::PostUpdate(const gz::sim::UpdateInfo &_info,
+                        const gz::sim::EntityComponentManager &_ecm) {
   if (_info.paused) {
     return;
   }
@@ -38,7 +37,6 @@ void Plugin::PostUpdate(const ignition::gazebo::UpdateInfo &_info,
   }
 
   private_->last_pub_time_ = _info.simTime;
-  private_->Publish(
-      _ecm, ignition::gazebo::convert<ignition::msgs::Time>(_info.simTime));
+  private_->Publish(_ecm, gz::sim::convert<gz::msgs::Time>(_info.simTime));
 }
 }  // namespace odometry

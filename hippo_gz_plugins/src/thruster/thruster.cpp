@@ -1,21 +1,20 @@
 #include "thruster.hpp"
 
-#include <ignition/gazebo/Conversions.hh>
-#include <ignition/plugin/Register.hh>
+#include <gz/plugin/Register.hh>
+#include <gz/sim/Conversions.hh>
 
-IGNITION_ADD_PLUGIN(thruster::Plugin, ignition::gazebo::System,
-                    thruster::Plugin::ISystemConfigure,
-                    thruster::Plugin::ISystemPreUpdate)
-IGNITION_ADD_PLUGIN_ALIAS(thruster::Plugin, "hippo_gz_plugins::thruster")
+GZ_ADD_PLUGIN(thruster::Plugin, gz::sim::System,
+              thruster::Plugin::ISystemConfigure,
+              thruster::Plugin::ISystemPreUpdate)
+GZ_ADD_PLUGIN_ALIAS(thruster::Plugin, "hippo_gz_plugins::thruster")
 
 namespace thruster {
 Plugin::Plugin() : System(), private_(std::make_unique<PluginPrivate>()) {}
 
-void Plugin::Configure(
-    const ignition::gazebo::Entity &_entity,
-    const std::shared_ptr<const sdf::Element> &_sdf,
-    ignition::gazebo::EntityComponentManager &_ecm,
-    [[maybe_unused]] ignition::gazebo::EventManager &_eventMgr) {
+void Plugin::Configure(const gz::sim::Entity &_entity,
+                       const std::shared_ptr<const sdf::Element> &_sdf,
+                       gz::sim::EntityComponentManager &_ecm,
+                       [[maybe_unused]] gz::sim::EventManager &_eventMgr) {
   private_->ParseSdf(_sdf);
   if (!private_->InitModel(_ecm, _entity)) {
     ignerr << "Plugin needs to be attached to model entity." << std::endl;
@@ -25,8 +24,8 @@ void Plugin::Configure(
   private_->AdvertiseThrust();
   private_->SubscribeThrottleCmd();
 }
-void Plugin::PreUpdate(const ignition::gazebo::UpdateInfo &_info,
-                       ignition::gazebo::EntityComponentManager &_ecm) {
+void Plugin::PreUpdate(const gz::sim::UpdateInfo &_info,
+                       gz::sim::EntityComponentManager &_ecm) {
   if (_info.paused) {
     return;
   }
